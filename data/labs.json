@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Complete Blood Count (CBC) / Hemoglobin",
+    "sample": "Blood",
+    "measures": "The number and quality of red blood cells, white blood cells, and platelets, including your hemoglobin level.",
+    "whyRecommended": "Helps detect anaemia, which is common in pregnancy, so iron and overall blood health can be supported early."
+  },
+  {
+    "name": "Blood Group & Rh Typing",
+    "sample": "Blood",
+    "measures": "Your blood group (A, B, AB, or O) and whether you are Rh positive or Rh negative.",
+    "whyRecommended": "Identifies Rh-negative pregnancies that may need special care, and provides important information in case a transfusion is ever needed."
+  },
+  {
+    "name": "Blood Sugar / Oral Glucose Tolerance Test (OGTT)",
+    "sample": "Blood",
+    "measures": "How your body processes sugar by checking blood glucose levels, often before and after a measured glucose drink.",
+    "whyRecommended": "Screens for gestational diabetes so that blood sugar can be managed to support a healthy pregnancy for you and your baby."
+  },
+  {
+    "name": "Thyroid Function (TSH)",
+    "sample": "Blood",
+    "measures": "The level of thyroid-stimulating hormone, which reflects how well the thyroid gland is working.",
+    "whyRecommended": "Thyroid hormones are important for the baby's brain development, so checking helps ensure levels stay in a healthy range."
+  },
+  {
+    "name": "Ferritin / Iron Studies",
+    "sample": "Blood",
+    "measures": "Your body's iron stores, including ferritin, which shows how much iron is available in reserve.",
+    "whyRecommended": "Gives a fuller picture of iron status than hemoglobin alone, helping guide diet and supplementation to prevent anaemia."
+  },
+  {
+    "name": "Vitamin D",
+    "sample": "Blood",
+    "measures": "The level of vitamin D in your blood.",
+    "whyRecommended": "Vitamin D supports calcium absorption and bone health for both you and your baby, and deficiency is common."
+  },
+  {
+    "name": "Infection Screen (HIV, Hepatitis B, Syphilis, Rubella)",
+    "sample": "Blood",
+    "measures": "Markers of certain infections and immunity, including HIV, hepatitis B, syphilis, and rubella immunity.",
+    "whyRecommended": "Early detection allows steps that protect the baby's health, and rubella status guides advice about immunity and future vaccination."
+  },
+  {
+    "name": "Urine Routine & Culture",
+    "sample": "Urine",
+    "measures": "Protein, sugar, and signs of infection in the urine, with a culture to identify any bacteria.",
+    "whyRecommended": "Detects urinary infections and early signs of conditions like high blood pressure or diabetes so they can be addressed promptly."
+  }
+]

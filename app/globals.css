@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Font stacks (fonts arrive via runtime <link>; graceful fallbacks). */
+  --font-fraunces: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-inter: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Warm Editorial Wellness — light */
+  --cream: 250 245 238;
+  --linen: 244 236 226;
+  --surface: 255 252 248;
+  --ink: 46 36 42;
+  --plum: 74 45 64;
+  --peach: 224 122 95;
+  --peach-soft: 244 198 180;
+  --terracotta: 198 93 70;
+  --sage: 124 142 116;
+  --sage-soft: 196 208 186;
+  --muted: 122 110 116;
+  --hairline: 222 210 200;
+}
+
+.dark {
+  /* Warm Editorial Wellness — dark (warm charcoal) */
+  --cream: 28 24 27;
+  --linen: 34 29 33;
+  --surface: 40 34 39;
+  --ink: 242 234 230;
+  --plum: 226 196 210;
+  --peach: 230 142 116;
+  --peach-soft: 92 60 56;
+  --terracotta: 224 128 102;
+  --sage: 158 176 148;
+  --sage-soft: 60 72 58;
+  --muted: 176 164 170;
+  --hairline: 64 54 60;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(var(--cream));
+  color: rgb(var(--ink));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Layered ambient background: soft radial washes + film grain */
+.bg-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60% 50% at 12% 0%, rgb(var(--peach-soft) / 0.55), transparent 60%),
+    radial-gradient(55% 45% at 92% 8%, rgb(var(--sage-soft) / 0.5), transparent 60%),
+    radial-gradient(70% 60% at 50% 110%, rgb(var(--peach-soft) / 0.35), transparent 60%);
+}
+
+.bg-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.4;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+}
+
+/* Glass surface */
+.glass {
+  background: rgb(var(--surface) / 0.7);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgb(var(--hairline) / 0.7);
+}
+
+/* Focus ring */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid rgb(var(--terracotta));
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Print styles for PDF export of week/month summaries */
+@media print {
+  .bg-ambient,
+  .bg-grain::after,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .glass {
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    backdrop-filter: none !important;
+  }
+  .print-block {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 16mm;
+  }
+}

@@ -1,0 +1,101 @@
+[
+  {
+    "month": 1,
+    "weeksRange": "Weeks 1–4",
+    "title": "Month 1: The Journey Begins",
+    "developmentSummary": "Pregnancy is dated from your last period, so the first two weeks happen before conception. By the end of this month, the fertilised egg implants in the uterus, the placenta begins to form, and the neural tube that becomes the brain and spinal cord starts to develop. The embryo is the size of a poppy seed.",
+    "bodyChanges": "Many people feel no different at first, then notice a missed period as pregnancy hormone (hCG) rises. Early signs can include tender breasts, mild cramping, light implantation spotting, and tiredness. A home pregnancy test usually turns positive around the end of this month.",
+    "nutritionFocus": "Folic acid is the priority this month because the neural tube is forming. Eat folate-rich leafy greens and lentils, keep meals balanced, and stay hydrated. Avoid alcohol, smoking, and unnecessary medicines.",
+    "exerciseGuidance": "Gentle activity such as walking and stretching is generally fine for most people. There is no need to start anything strenuous; the focus is on rest, hydration, and a healthy routine. Always check with your provider about your individual situation.",
+    "commonExperiences": ["Missed period", "Tender or fuller breasts", "Mild fatigue", "Light implantation spotting", "Heightened sense of smell"],
+    "prenatalCare": ["Confirm pregnancy with a home test and note your last period date", "Book your first prenatal appointment", "Start or continue a daily folic acid supplement", "Discuss any existing medicines with your provider", "Avoid alcohol, smoking, and raw or unpasteurised foods"]
+  },
+  {
+    "month": 2,
+    "weeksRange": "Weeks 5–8",
+    "title": "Month 2: Tiny Foundations Form",
+    "developmentSummary": "This is a month of rapid, foundational growth. A simple heart tube begins to beat, limb buds appear, and the early features of the face, eyes, and ears take shape. The major organs all begin forming. By the end of the month the embryo is about the size of a raspberry and is starting to look more like a tiny baby.",
+    "bodyChanges": "Pregnancy symptoms often peak now. Nausea (sometimes called morning sickness but possible any time of day), strong food aversions, fatigue, and a heightened sense of smell are common. Your uterus is growing even though you are not visibly showing.",
+    "nutritionFocus": "Keep up folic acid and prenatal vitamins. Eat small, frequent meals to manage nausea, and choose iron-rich and protein-rich foods. Stay well hydrated even if your appetite is low.",
+    "exerciseGuidance": "Gentle walking and light stretching can help energy and digestion. Listen to your body and rest when you feel tired. Avoid overheating and stay hydrated during any activity.",
+    "commonExperiences": ["Nausea, sometimes with vomiting", "Strong food aversions or cravings", "Extreme tiredness", "Tender breasts", "Frequent urination"],
+    "prenatalCare": ["Attend your first prenatal visit and dating scan if scheduled", "Discuss safe ways to manage nausea", "Confirm your estimated due date", "Review which foods and activities to avoid", "Continue folic acid and prenatal vitamins daily"]
+  },
+  {
+    "month": 3,
+    "weeksRange": "Weeks 9–13",
+    "title": "Month 3: From Embryo to Fetus",
+    "developmentSummary": "The embryo becomes a fetus, and all the vital organs are now functioning. Fingers and toes separate, tiny nails begin forming, reflexes appear, and unique fingerprints develop. The heartbeat may be heard with a handheld doppler. By the end of this month, the baby is about the size of a lemon, and the highest-risk early period is passing.",
+    "bodyChanges": "For many people, nausea and fatigue begin to ease toward the end of this month as the first trimester closes. You may notice the very start of a bump and steadier energy. Some experience mild headaches or light-headedness.",
+    "nutritionFocus": "Continue folic acid, and add iron-rich foods to support your increasing blood volume. Include protein, calcium, and a variety of fruits and vegetables. Keep hydrating well throughout the day.",
+    "exerciseGuidance": "If you feel up to it, gentle exercise like walking, swimming, or prenatal yoga can support energy and mood. Build activity gradually and avoid contact sports or anything with a high fall risk.",
+    "commonExperiences": ["Easing nausea for many", "Returning energy", "Visible bump beginning", "Mild headaches", "Increased appetite"],
+    "prenatalCare": ["Attend the dating scan if not already done", "Discuss first-trimester screening and the NT scan (weeks 11–14)", "Have recommended blood tests for blood group, hemoglobin, and infections", "Confirm how often your future visits will be", "Continue iron and folic acid as advised"]
+  },
+  {
+    "month": 4,
+    "weeksRange": "Weeks 14–17",
+    "title": "Month 4: The Comfortable Stretch",
+    "developmentSummary": "The baby can make facial expressions, suck a thumb, and sense light through closed eyelids. Fine downy hair called lanugo appears, and bones continue hardening. Movements become stronger, though most people cannot feel them yet. By the end of the month, the baby is roughly the size of an avocado.",
+    "bodyChanges": "Welcome to the second trimester, often the most comfortable phase. Energy usually returns and nausea fades. Your bump may begin to show, and some people notice glowing skin or fuller hair. Mild round-ligament aches are common as the uterus grows.",
+    "nutritionFocus": "Focus on steady, balanced nutrition with iron, calcium, and protein. Calcium supports the baby's developing bones, and iron supports your growing blood volume. Keep meals varied and colourful.",
+    "exerciseGuidance": "This is a good time for regular gentle exercise such as walking, swimming, or prenatal yoga. Wear supportive clothing and footwear, stay hydrated, and avoid lying flat on your back for long periods.",
+    "commonExperiences": ["Increased energy", "Reduced nausea", "Visible bump", "Round-ligament aches", "Nasal congestion"],
+    "prenatalCare": ["Attend your routine prenatal check-up", "Discuss the upcoming anatomy scan (weeks 18–22)", "Have your blood pressure and weight monitored", "Ask about any genetic screening you wish to consider", "Continue iron, calcium, and prenatal vitamins"]
+  },
+  {
+    "month": 5,
+    "weeksRange": "Weeks 18–22",
+    "title": "Month 5: Movements and Milestones",
+    "developmentSummary": "This is a major milestone month. The baby yawns, hiccups, and responds to sound, and a protective coating called vernix forms over the skin. Many people feel the first flutters of movement. The detailed anatomy scan, which checks the baby's organs and growth, is usually done now. By the end of the month, the baby is around the size of a banana.",
+    "bodyChanges": "You likely feel well and energetic. Movements may become noticeable, your bump is clearly visible, and you may notice skin pigmentation changes and mild backache as your centre of gravity shifts.",
+    "nutritionFocus": "Keep calcium and iron front and centre for bones and blood, alongside protein for growth. Include a variety of vegetables, fruits, and whole grains. Stay hydrated to help with mild swelling and digestion.",
+    "exerciseGuidance": "Continue regular gentle activity, focusing on posture and core support. Prenatal yoga, walking, and swimming are good options. Move slowly when changing positions to ease ligament twinges and light-headedness.",
+    "commonExperiences": ["First felt movements (quickening)", "Clearly visible bump", "Mild backache", "Skin pigmentation changes", "Healthy appetite"],
+    "prenatalCare": ["Attend the detailed anatomy (anomaly) scan", "Confirm the placenta position and the baby's growth", "Have blood pressure and weight checked", "Discuss any questions about feeling movement", "Continue iron, calcium, and prenatal vitamins"]
+  },
+  {
+    "month": 6,
+    "weeksRange": "Weeks 23–27",
+    "title": "Month 6: Senses Sharpen",
+    "developmentSummary": "The lungs begin forming the structures needed for breathing, and the baby starts producing surfactant. Hearing is well established, so the baby responds to your voice and music. The eyes begin to open and baby fat fills out the skin. By the end of the month, the baby is around the size of a head of cabbage, and the second trimester is ending.",
+    "bodyChanges": "Your bump is prominent and movements are strong. You may notice Braxton Hicks (practice contractions), swelling in the feet, backache, and occasional heartburn. The glucose screening test is often done around this time.",
+    "nutritionFocus": "Maintain iron, calcium, and protein, and include fibre-rich foods to ease constipation. Smaller, frequent meals help with heartburn. Watch portion sizes of sugary foods, especially around glucose screening, and keep hydrating.",
+    "exerciseGuidance": "Continue gentle, regular activity while listening to your body. Pelvic floor exercises and stretching can help comfort. Rest with your feet elevated to ease swelling, and avoid standing for long stretches.",
+    "commonExperiences": ["Strong, regular movements", "Braxton Hicks contractions", "Swollen feet and ankles", "Heartburn", "Backache"],
+    "prenatalCare": ["Attend the glucose tolerance test (screening for gestational diabetes)", "Have blood pressure, weight, and urine checked", "Discuss the difference between practice and true contractions", "Ask how to manage swelling and heartburn safely", "Continue iron, calcium, and prenatal vitamins"]
+  },
+  {
+    "month": 7,
+    "weeksRange": "Weeks 28–31",
+    "title": "Month 7: Into the Third Trimester",
+    "developmentSummary": "The baby develops clear sleep and wake cycles, the brain grows rapidly with new grooves and folds, and bones harden with calcium. The baby can begin to regulate its own body temperature, and the eyes can track light. By the end of the month, the baby is around the size of a coconut.",
+    "bodyChanges": "You are firmly in the third trimester. Fatigue often returns, and you may feel more breathless as the uterus rises. Backache, leg cramps, heartburn, and trouble sleeping are common, and prenatal visits become more frequent.",
+    "nutritionFocus": "Calcium is important for the baby's hardening bones, and iron supports your blood volume. Continue protein for growth and fibre for digestion. Small, frequent meals help manage heartburn and steady energy.",
+    "exerciseGuidance": "Keep up gentle movement like short walks and stretching, but rest more as you tire. Side-sleeping with pillow support improves comfort. Practise relaxation and breathing techniques you can use later in labour.",
+    "commonExperiences": ["Strong movements", "Shortness of breath", "Leg cramps", "Heartburn", "Trouble sleeping"],
+    "prenatalCare": ["Begin attending more frequent prenatal visits", "Start daily monitoring of baby movements as advised", "Have a growth scan if recommended", "Discuss any additional blood tests, such as repeat hemoglobin", "Continue iron, calcium, and prenatal vitamins"]
+  },
+  {
+    "month": 8,
+    "weeksRange": "Weeks 32–35",
+    "title": "Month 8: Preparing for Arrival",
+    "developmentSummary": "The baby practises breathing, sucking, and swallowing, and the lungs continue maturing with more surfactant. The kidneys are fully developed, and the brain gains weight quickly. Most babies begin settling into a head-down position. By the end of the month, the baby is around the size of a honeydew melon.",
+    "bodyChanges": "Your bump is large and space feels tight, so movements become more like squirms and rolls. You may feel more pelvic pressure, frequent urination, and stronger Braxton Hicks. Sleep can be more difficult.",
+    "nutritionFocus": "Keep nutrient density high with iron, calcium, and protein in smaller, frequent meals. Stay well hydrated and include fibre to ease constipation. Choose nourishing snacks to keep energy steady when appetite is limited by a crowded abdomen.",
+    "exerciseGuidance": "Gentle walking and pelvic-floor exercises remain helpful; rest whenever you need to. Avoid heavy lifting and high-fall-risk activities. Continue practising relaxation and breathing for labour.",
+    "commonExperiences": ["Squirming movements", "Pelvic pressure", "Frequent urination", "Braxton Hicks", "Trouble sleeping"],
+    "prenatalCare": ["Attend frequent prenatal visits and growth scans as advised", "Confirm the baby's position", "Learn the warning signs of preterm labour", "Prepare your hospital bag and birth preferences", "Continue iron, calcium, and prenatal vitamins"]
+  },
+  {
+    "month": 9,
+    "weeksRange": "Weeks 36–40",
+    "title": "Month 9: Ready to Meet You",
+    "developmentSummary": "The baby is full term by the later weeks, with mature lungs ready to breathe air and strong reflexes like grasping and sucking. The baby usually moves into a head-down position and gains the final layers of fat. By the due date the baby is around the size of a small pumpkin, fully developed and ready to be born.",
+    "bodyChanges": "You may feel impatient and uncomfortable, with strong pelvic pressure. If the baby drops lower, breathing may ease while pressure increases. You may notice signs that labour is approaching, such as increased discharge, a mucus plug, or early contractions.",
+    "nutritionFocus": "Keep meals light, balanced, and nourishing to maintain energy for labour. Stay hydrated, and include iron, calcium, and protein. Eat smaller portions if a crowded abdomen makes large meals uncomfortable.",
+    "exerciseGuidance": "Gentle walking can help with comfort and readiness, but rest and conserve energy as your due date nears. Continue relaxation and breathing practice. Stop and rest if you feel any contractions or discomfort.",
+    "commonExperiences": ["Strong pelvic pressure", "Increased vaginal discharge", "Braxton Hicks or early contractions", "Nesting urge", "Fatigue"],
+    "prenatalCare": ["Attend weekly prenatal visits", "Review the clear signs of labour and when to go to the hospital", "Discuss your birth plan and pain-relief preferences", "Continue monitoring baby movements daily", "Ask what happens if you go past your due date"]
+  }
+]

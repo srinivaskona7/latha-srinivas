@@ -1,0 +1,61 @@
+{
+  "intro": "Eating well during pregnancy supports your baby's growth and helps you feel your best. The ideas below are general, Indian-friendly suggestions for a balanced diet. They are educational only and are not a substitute for personal medical advice — please discuss your individual dietary needs, supplements, and any health conditions with your own healthcare provider.",
+  "proteinSources": [
+    "Dal and lentils (toor, moong, masoor, chana)",
+    "Paneer and other dairy",
+    "Eggs (well cooked)",
+    "Chicken and fish (well cooked, low-mercury varieties)",
+    "Sprouts and legumes such as chana and rajma",
+    "Soya, tofu, and nuts"
+  ],
+  "ironRich": [
+    "Spinach and other leafy greens (palak, methi)",
+    "Jaggery (gud)",
+    "Dates (khajoor)",
+    "Ragi (finger millet)",
+    "Lentils and beans",
+    "Pair iron foods with vitamin C (lemon, amla, citrus) to help absorption"
+  ],
+  "calciumSources": [
+    "Milk and curd",
+    "Paneer and other dairy",
+    "Ragi (finger millet)",
+    "Sesame seeds (til)",
+    "Leafy greens",
+    "Almonds"
+  ],
+  "folateRich": [
+    "Leafy green vegetables (palak, methi)",
+    "Lentils and beans",
+    "Citrus fruits (orange, mosambi)",
+    "Sprouts",
+    "Beetroot",
+    "Fortified cereals and whole grains"
+  ],
+  "mealIdeas": [
+    "A balanced thali with dal, sabzi, roti or rice, curd, and a small salad",
+    "Vegetable poha or upma with a glass of milk",
+    "Idli or dosa with sambar and a side of chutney",
+    "Roti with paneer or egg bhurji and a vegetable",
+    "Ragi porridge or ragi malt with jaggery for an iron and calcium boost",
+    "Khichdi with vegetables, topped with a spoon of ghee and a side of curd",
+    "Fruit and nut snack with a handful of soaked almonds and dates"
+  ],
+  "hydration": [
+    "Aim for regular sips of clean water through the day",
+    "Include buttermilk (chaas) and coconut water for variety and electrolytes",
+    "Fresh fruit and vegetable soups add fluids and nutrients",
+    "Limit very sugary drinks and packaged juices",
+    "Increase fluids in hot weather and if you feel thirsty or tired"
+  ],
+  "avoidOrLimit": [
+    "Raw or undercooked meat, eggs, and fish",
+    "Unpasteurised milk and soft unpasteurised cheeses",
+    "High-mercury fish such as shark, swordfish, and king mackerel",
+    "Excess caffeine from coffee, tea, and cola (keep intake modest)",
+    "Alcohol, which is best avoided entirely in pregnancy",
+    "Unwashed fruits and vegetables, and street food of uncertain hygiene",
+    "Papaya (especially raw or unripe) and pineapple are traditionally limited by some families; evidence in normal food amounts is limited, so follow your own provider's guidance",
+    "Very salty, deep-fried, and heavily processed foods in large amounts"
+  ]
+}

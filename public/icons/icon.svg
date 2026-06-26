@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F4C6B4"/>
+      <stop offset="0.55" stop-color="#E07A5F"/>
+      <stop offset="1" stop-color="#C65D46"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.5">
+      <stop offset="0" stop-color="#FFF7F0" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#FFF7F0" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="226" r="150" fill="url(#glow)"/>
+  <!-- abstract curled baby form -->
+  <g fill="#FFF7F0">
+    <circle cx="256" cy="196" r="58"/>
+    <path d="M256 250c-66 0-104 44-104 96 0 26 20 42 50 42 22 0 34-12 54-12s32 12 54 12c30 0 50-16 50-42 0-52-38-96-104-96z" opacity="0.96"/>
+  </g>
+  <!-- sparkle -->
+  <path d="M372 132l8 26 26 8-26 8-8 26-8-26-26-8 26-8z" fill="#FFF7F0" opacity="0.95"/>
+</svg>

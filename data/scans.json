@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Dating Scan",
+    "whenWeeks": "6–9",
+    "purpose": "Confirms the pregnancy, checks that it is in the uterus, and accurately estimates how many weeks along you are and your due date.",
+    "whatItChecks": "The location of the pregnancy, the number of babies, the early heartbeat, and the crown-rump length used to date the pregnancy precisely."
+  },
+  {
+    "name": "Nuchal Translucency (NT) Scan",
+    "whenWeeks": "11–14",
+    "purpose": "Part of first-trimester screening that helps assess the chance of certain chromosomal conditions, usually combined with a blood test.",
+    "whatItChecks": "The fluid at the back of the baby's neck (nuchal translucency), the nasal bone, the heartbeat, and early development, alongside blood marker results."
+  },
+  {
+    "name": "Anatomy (Anomaly) Scan",
+    "whenWeeks": "18–22",
+    "purpose": "A detailed scan that reviews the baby's organs and overall growth to check that development is progressing as expected.",
+    "whatItChecks": "The brain, heart, spine, kidneys, stomach, limbs, and face, plus the position of the placenta, the amount of amniotic fluid, and growth measurements."
+  },
+  {
+    "name": "Growth Scan",
+    "whenWeeks": "28–36",
+    "purpose": "Checks that the baby is growing well in the third trimester and monitors wellbeing, especially if growth or other factors need closer follow-up.",
+    "whatItChecks": "The baby's estimated weight and growth trend, the amount of amniotic fluid, the placenta, and the baby's position."
+  },
+  {
+    "name": "Doppler Study",
+    "whenWeeks": "28–40",
+    "purpose": "Assesses blood flow between the placenta and the baby to help confirm that the baby is getting enough oxygen and nutrients.",
+    "whatItChecks": "Blood flow in the umbilical cord and selected blood vessels, which gives information about placental function and the baby's wellbeing."
+  },
+  {
+    "name": "Non-Stress Test (NST)",
+    "whenWeeks": "32–40",
+    "purpose": "A simple, non-invasive test that monitors the baby's heart rate in response to its own movements to reassure about wellbeing.",
+    "whatItChecks": "The baby's heart rate pattern and how it changes with movements, recorded with sensors placed on your abdomen, along with any contractions."
+  }
+]
