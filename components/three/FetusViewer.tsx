@@ -69,27 +69,36 @@ export function FetusViewer({ initialScale = 1 }: { initialScale?: number }) {
         <Canvas
           shadows
           dpr={[1, 2]}
-          camera={{ position: [2.4, 1.6, 3.4], fov: 42 }}
+          camera={{ position: [2.2, 1.2, 3.2], fov: 40 }}
         >
           <Suspense fallback={null}>
-            <ambientLight intensity={0.6} />
+            <color attach="background" args={["#1d1822"]} />
+            <fog attach="fog" args={["#1d1822", 6, 12]} />
+            <ambientLight intensity={0.45} />
             <directionalLight
               position={[4, 6, 4]}
-              intensity={1.4}
+              intensity={1.6}
               castShadow
-              shadow-mapSize={[1024, 1024]}
+              shadow-mapSize={[2048, 2048]}
             />
-            <directionalLight position={[-4, 2, -3]} intensity={0.4} color="#E07A5F" />
+            <spotLight
+              position={[-5, 4, 2]}
+              angle={0.5}
+              penumbra={1}
+              intensity={0.8}
+              color="#E07A5F"
+            />
+            <pointLight position={[0, -2, 3]} intensity={0.3} color="#F4C6B4" />
             <FetusModel
               selected={selected}
               scale={0.9 * growth}
               onSelect={setSelected}
             />
             <ContactShadows
-              position={[0, -1.1, 0]}
-              opacity={0.35}
+              position={[0, -1.15, 0]}
+              opacity={0.4}
               scale={6}
-              blur={2.4}
+              blur={2.6}
               far={3}
             />
             <Environment preset="sunset" />
@@ -99,6 +108,7 @@ export function FetusViewer({ initialScale = 1 }: { initialScale?: number }) {
               minDistance={2}
               maxDistance={7}
               autoRotate={false}
+              target={[0, 0.1, 0.2]}
             />
           </Suspense>
         </Canvas>
