@@ -5,12 +5,19 @@ import { Header } from "@/components/nav/Header";
 import { MobileNav } from "@/components/nav/MobileNav";
 import { Disclaimer } from "@/components/common/Disclaimer";
 
+// Base path is injected at build time (e.g. "/latha-srinivas" on GitHub Pages).
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "Baby Journey AI — Your Daily Pregnancy Companion",
   description:
     "A beautiful, educational day-by-day pregnancy companion. Track development, milestones, and maternal wellbeing. Not a substitute for prenatal care.",
-  manifest: "/manifest.webmanifest",
+  manifest: `${BASE_PATH}/manifest.webmanifest`,
   applicationName: "Baby Journey AI",
+  icons: {
+    icon: `${BASE_PATH}/icons/icon-192.png`,
+    apple: `${BASE_PATH}/icons/apple-touch-icon.png`,
+  },
   appleWebApp: { capable: true, title: "Baby Journey", statusBarStyle: "default" },
 };
 
