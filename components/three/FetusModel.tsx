@@ -4,16 +4,10 @@ import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
+import type { SystemId } from "@/lib/morphology";
+import type { Morphology } from "@/lib/morphology";
 
-export type SystemId =
-  | "skeleton"
-  | "brain"
-  | "heart"
-  | "lungs"
-  | "digestive"
-  | "muscles"
-  | "placenta"
-  | "umbilicalCord";
+export type { SystemId };
 
 const ACCENT: Record<SystemId, string> = {
   skeleton: "#EAD9C2",
@@ -30,7 +24,7 @@ const INTERNAL: SystemId[] = ["brain", "heart", "lungs", "digestive"];
 
 type Vec = [number, number, number];
 
-/** A limb segment: a capsule oriented to span from `start` to `end`. */
+/** A limb segment: a capsule spanning from `start` to `end`. */
 function Bone({
   start,
   end,
@@ -63,7 +57,7 @@ function Bone({
 
   return (
     <mesh position={position} quaternion={quaternion} castShadow receiveShadow>
-      <capsuleGeometry args={[radius, length, 16, 24]} />
+      <capsuleGeometry args={[radius, length, 12, 20]} />
       <meshStandardMaterial
         color={color}
         roughness={0.62}
@@ -77,18 +71,23 @@ function Bone({
   );
 }
 
+const v = (a: Vec, b: Vec, t: number): Vec => [
+  a[0] + (b[0] - a[0]) * t,
+  a[1] + (b[1] - a[1]) * t,
+  a[2] + (b[2] - a[2]) * t,
+];
+
 /**
- * A stylized but recognizable curled fetus, built procedurally (no external
- * model). The whole form turns translucent when an internal organ is selected
- * so it can be seen inside; structural systems tint the body.
+ * Day-driven stylized fetus. Every proportion (head size, limb extension,
+ * tail, fat) comes from `morph`, so the form changes across the pregnancy.
  */
 export function FetusModel({
+  morph,
   selected,
-  scale,
   onSelect,
 }: {
+  morph: Morphology;
   selected: SystemId | null;
-  scale: number;
   onSelect: (id: SystemId) => void;
 }) {
   const group = useRef<THREE.Group>(null);
@@ -97,15 +96,16 @@ export function FetusModel({
   useFrame((state, delta) => {
     if (!group.current) return;
     if (!reduce) group.current.rotation.y += delta * 0.2;
-    // gentle breathing bob
     const t = state.clock.elapsedTime;
     group.current.position.y = -0.15 + (reduce ? 0 : Math.sin(t * 0.8) * 0.03);
   });
 
-  const seeInside = selected !== null && INTERNAL.includes(selected);
-  const skinOpacity = seeInside ? 0.4 : 1;
+  const { headRatio, limbExtend, tail, chub, curl, hasFeatures, hasEyeSpots, displayScale } =
+    morph;
 
-  // Skin tone reacts to structural selections.
+  const seeInside = selected !== null && INTERNAL.includes(selected);
+  const skinOpacity = seeInside ? 0.38 : morph.baseSkinOpacity;
+
   const skinColor =
     selected === "muscles"
       ? "#C56B52"
@@ -123,193 +123,234 @@ export function FetusModel({
     emissive: skinEmissive,
     emissiveIntensity: skinEmissiveI,
   };
+  const skinSolid = { color: skinColor, roughness: 0.6 };
 
   const stop = (fn: () => void) => (e: { stopPropagation: () => void }) => {
     e.stopPropagation();
     fn();
   };
 
+  // ---- Derived proportions ----
+  const headR = 0.42 + headRatio * 0.32; // larger head when headRatio high
+  const headY = 0.5 + headR * 0.6;
+  const bodyRadius = 0.3 + chub * 0.14;
+  const bellyR = 0.32 + chub * 0.16;
+  const limbRadius = 0.08 + limbExtend * 0.07 + chub * 0.03;
+
+  // Arm joints interpolate from tucked buds (t=0) to folded limbs (t=1).
+  const armSet = (s: number) => {
+    const shoulder: Vec = [s * 0.3, 0.42, 0.16];
+    const elbowBud: Vec = [s * 0.34, 0.34, 0.26];
+    const elbowFull: Vec = [s * 0.5, 0.12, 0.5];
+    const handBud: Vec = [s * 0.34, 0.3, 0.32];
+    const handFull: Vec = [s * 0.22, 0.52, 0.62];
+    return {
+      shoulder,
+      elbow: v(elbowBud, elbowFull, limbExtend),
+      hand: v(handBud, handFull, limbExtend),
+    };
+  };
+  const legSet = (s: number) => {
+    const hip: Vec = [s * 0.2, -0.36, 0.16];
+    const kneeBud: Vec = [s * 0.26, -0.3, 0.26];
+    const kneeFull: Vec = [s * 0.46, -0.18, 0.6];
+    const footBud: Vec = [s * 0.26, -0.34, 0.32];
+    const footFull: Vec = [s * 0.24, 0.18, 0.66];
+    return {
+      hip,
+      knee: v(kneeBud, kneeFull, limbExtend),
+      foot: v(footBud, footFull, limbExtend),
+    };
+  };
+
   return (
-    <group ref={group} scale={scale * 0.85} position={[0, -0.15, 0]}>
-      {/* ---- HEAD (bowed forward) ---- */}
-      <group position={[0, 0.92, 0.18]} rotation={[0.32, 0, 0]}>
-        <mesh onClick={stop(() => onSelect("brain"))} castShadow>
-          <sphereGeometry args={[0.62, 64, 64]} />
-          <meshPhysicalMaterial
-            color={skin.color}
-            roughness={0.5}
-            sheen={0.6}
-            sheenColor="#F4C9B4"
-            clearcoat={0.2}
-            transparent={skin.opacity < 1}
-            opacity={skin.opacity}
-            emissive={skin.emissive}
-            emissiveIntensity={skin.emissiveIntensity}
-          />
-        </mesh>
-
-        {/* nose hint */}
-        <mesh position={[0, -0.04, 0.6]}>
-          <sphereGeometry args={[0.08, 24, 24]} />
-          <meshStandardMaterial color={skin.color} roughness={0.55} transparent={skin.opacity < 1} opacity={skin.opacity} />
-        </mesh>
-        {/* cheeks */}
-        {[-0.26, 0.26].map((x) => (
-          <mesh key={x} position={[x, -0.1, 0.46]}>
-            <sphereGeometry args={[0.16, 24, 24]} />
-            <meshStandardMaterial color={skin.color} roughness={0.55} transparent={skin.opacity < 1} opacity={skin.opacity} />
-          </mesh>
-        ))}
-        {/* closed eyes */}
-        {[-0.24, 0.24].map((x) => (
-          <mesh key={x} position={[x, 0.06, 0.52]} scale={[1, 0.4, 0.5]}>
-            <sphereGeometry args={[0.07, 16, 16]} />
-            <meshStandardMaterial color="#8a5a4a" roughness={0.5} />
-          </mesh>
-        ))}
-        {/* ears */}
-        {[-0.58, 0.58].map((x) => (
-          <mesh key={x} position={[x, 0, 0.02]} scale={[0.5, 1, 0.7]}>
-            <sphereGeometry args={[0.16, 24, 24]} />
-            <meshStandardMaterial color={skin.color} roughness={0.6} transparent={skin.opacity < 1} opacity={skin.opacity} />
-          </mesh>
-        ))}
-
-        {/* brain (revealed when selected) */}
-        <mesh visible={selected === "brain"} position={[0, 0.12, -0.02]}>
-          <sphereGeometry args={[0.5, 48, 48]} />
-          <meshStandardMaterial color={ACCENT.brain} emissive={ACCENT.brain} emissiveIntensity={0.8} roughness={0.35} />
-        </mesh>
-      </group>
-
-      {/* ---- TORSO (curved, belly forward) ---- */}
-      <group onClick={stop(() => onSelect("muscles"))}>
-        <Bone start={[0, 0.55, 0.05]} end={[0, -0.25, 0.18]} radius={0.42} {...skin} />
-        {/* belly */}
-        <mesh position={[0, 0.05, 0.34]}>
-          <sphereGeometry args={[0.4, 48, 48]} />
-          <meshPhysicalMaterial
-            color={skin.color}
-            roughness={0.5}
-            sheen={0.5}
-            sheenColor="#F4C9B4"
-            transparent={skin.opacity < 1}
-            opacity={skin.opacity}
-            emissive={skin.emissive}
-            emissiveIntensity={skin.emissiveIntensity}
-          />
-        </mesh>
-      </group>
-
-      {/* bottom / curl */}
-      <mesh position={[0, -0.42, 0.05]} onClick={stop(() => onSelect("muscles"))} castShadow>
-        <sphereGeometry args={[0.4, 48, 48]} />
-        <meshStandardMaterial color={skin.color} roughness={0.6} transparent={skin.opacity < 1} opacity={skin.opacity} emissive={skin.emissive} emissiveIntensity={skin.emissiveIntensity} />
-      </mesh>
-
-      {/* ---- ARMS (folded up toward face) ---- */}
-      {[-1, 1].map((s) => (
-        <group key={`arm${s}`} onClick={stop(() => onSelect("muscles"))}>
-          {/* upper arm: shoulder -> elbow */}
-          <Bone start={[s * 0.34, 0.42, 0.18]} end={[s * 0.5, 0.12, 0.5]} radius={0.15} {...skin} />
-          {/* forearm: elbow -> hand near chin */}
-          <Bone start={[s * 0.5, 0.12, 0.5]} end={[s * 0.22, 0.52, 0.62]} radius={0.13} {...skin} />
-          {/* hand */}
-          <mesh position={[s * 0.2, 0.56, 0.64]}>
-            <sphereGeometry args={[0.13, 24, 24]} />
-            <meshStandardMaterial color={skin.color} roughness={0.6} transparent={skin.opacity < 1} opacity={skin.opacity} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* ---- LEGS (knees drawn up to belly) ---- */}
-      {[-1, 1].map((s) => (
-        <group key={`leg${s}`} onClick={stop(() => onSelect("muscles"))}>
-          {/* thigh: hip -> knee (out & forward) */}
-          <Bone start={[s * 0.22, -0.4, 0.18]} end={[s * 0.46, -0.18, 0.6]} radius={0.18} {...skin} />
-          {/* shin: knee -> foot (up toward belly) */}
-          <Bone start={[s * 0.46, -0.18, 0.6]} end={[s * 0.24, 0.18, 0.66]} radius={0.14} {...skin} />
-          {/* foot */}
-          <mesh position={[s * 0.22, 0.2, 0.72]} scale={[1, 0.7, 1.3]}>
-            <sphereGeometry args={[0.13, 24, 24]} />
-            <meshStandardMaterial color={skin.color} roughness={0.6} transparent={skin.opacity < 1} opacity={skin.opacity} />
-          </mesh>
-        </group>
-      ))}
-
-      {/* ---- INTERNAL ORGANS (revealed via translucency) ---- */}
-      {/* heart */}
-      <mesh
-        position={[0.12, 0.28, 0.28]}
-        scale={selected === "heart" ? 1.25 : 1}
-        onClick={stop(() => onSelect("heart"))}
-      >
-        <sphereGeometry args={[0.14, 32, 32]} />
-        <meshStandardMaterial
-          color={ACCENT.heart}
-          emissive={ACCENT.heart}
-          emissiveIntensity={selected === "heart" ? 1 : 0.3}
-          roughness={0.35}
-        />
-      </mesh>
-
-      {/* lungs */}
-      <group onClick={stop(() => onSelect("lungs"))}>
-        {[-0.16, 0.16].map((x) => (
-          <mesh key={x} position={[x, 0.34, 0.24]} scale={[1, 1.3, 0.9]}>
-            <sphereGeometry args={[0.13, 28, 28]} />
-            <meshStandardMaterial
-              color={ACCENT.lungs}
-              emissive={ACCENT.lungs}
-              emissiveIntensity={selected === "lungs" ? 0.8 : 0.18}
-              roughness={0.45}
+    <group ref={group} scale={displayScale} position={[0, -0.15, 0]}>
+      <group scale={curl < 0.8 ? 1.05 : 1}>
+        {/* ---- HEAD ---- */}
+        <group position={[0, headY, 0.18]} rotation={[0.32, 0, 0]}>
+          <mesh onClick={stop(() => onSelect("brain"))} castShadow>
+            <sphereGeometry args={[headR, 48, 48]} />
+            <meshPhysicalMaterial
+              color={skin.color}
+              roughness={0.5}
+              sheen={0.6}
+              sheenColor="#F4C9B4"
+              clearcoat={0.2}
+              transparent={skin.opacity < 1}
+              opacity={skin.opacity}
+              emissive={skin.emissive}
+              emissiveIntensity={skin.emissiveIntensity}
             />
           </mesh>
-        ))}
-      </group>
 
-      {/* digestive coil */}
-      <mesh
-        position={[0, 0.0, 0.34]}
-        onClick={stop(() => onSelect("digestive"))}
-      >
-        <torusKnotGeometry args={[0.15, 0.05, 80, 10]} />
-        <meshStandardMaterial
-          color={ACCENT.digestive}
-          emissive={ACCENT.digestive}
-          emissiveIntensity={selected === "digestive" ? 0.8 : 0.2}
-          roughness={0.4}
-        />
-      </mesh>
+          {/* eye spots (early) or closed eyes (with features) */}
+          {(hasEyeSpots || hasFeatures) &&
+            [-1, 1].map((s) => (
+              <mesh
+                key={s}
+                position={[s * headR * 0.42, headR * 0.12, headR * 0.82]}
+                scale={hasFeatures ? [1, 0.4, 0.5] : [1, 1, 0.6]}
+              >
+                <sphereGeometry args={[headR * (hasFeatures ? 0.13 : 0.16), 16, 16]} />
+                <meshStandardMaterial color="#5a3a30" roughness={0.5} />
+              </mesh>
+            ))}
 
-      {/* skeleton: spine + ribs (only when selected) */}
-      <group visible={selected === "skeleton"}>
-        {[0.45, 0.3, 0.15, 0.0, -0.15].map((y, i) => (
-          <mesh key={i} position={[0, y, 0.18 + i * 0.02]} rotation={[Math.PI / 2.2, 0, 0]}>
-            <torusGeometry args={[0.34 - i * 0.02, 0.03, 12, 32]} />
-            <meshStandardMaterial color={ACCENT.skeleton} emissive={ACCENT.skeleton} emissiveIntensity={0.6} />
+          {hasFeatures && (
+            <>
+              {/* nose */}
+              <mesh position={[0, -headR * 0.05, headR * 0.95]}>
+                <sphereGeometry args={[headR * 0.13, 20, 20]} />
+                <meshStandardMaterial {...skinSolid} transparent={skin.opacity < 1} opacity={skin.opacity} />
+              </mesh>
+              {/* cheeks */}
+              {[-1, 1].map((s) => (
+                <mesh key={s} position={[s * headR * 0.42, -headR * 0.16, headR * 0.72]}>
+                  <sphereGeometry args={[headR * 0.26, 20, 20]} />
+                  <meshStandardMaterial {...skinSolid} transparent={skin.opacity < 1} opacity={skin.opacity} />
+                </mesh>
+              ))}
+              {/* ears */}
+              {[-1, 1].map((s) => (
+                <mesh key={s} position={[s * headR * 0.92, 0, 0.02]} scale={[0.5, 1, 0.7]}>
+                  <sphereGeometry args={[headR * 0.26, 20, 20]} />
+                  <meshStandardMaterial {...skinSolid} transparent={skin.opacity < 1} opacity={skin.opacity} />
+                </mesh>
+              ))}
+            </>
+          )}
+
+          {/* brain (revealed) */}
+          <mesh visible={selected === "brain"} position={[0, headR * 0.2, -0.02]}>
+            <sphereGeometry args={[headR * 0.8, 40, 40]} />
+            <meshStandardMaterial color={ACCENT.brain} emissive={ACCENT.brain} emissiveIntensity={0.8} roughness={0.35} />
           </mesh>
-        ))}
+        </group>
+
+        {/* ---- TORSO ---- */}
+        <group onClick={stop(() => onSelect("muscles"))}>
+          <Bone start={[0, 0.5, 0.05]} end={[0, -0.22, 0.16]} radius={bodyRadius} {...skin} />
+          <mesh position={[0, 0.05, 0.26 + chub * 0.06]}>
+            <sphereGeometry args={[bellyR, 40, 40]} />
+            <meshPhysicalMaterial
+              color={skin.color}
+              roughness={0.5}
+              sheen={0.5}
+              sheenColor="#F4C9B4"
+              transparent={skin.opacity < 1}
+              opacity={skin.opacity}
+              emissive={skin.emissive}
+              emissiveIntensity={skin.emissiveIntensity}
+            />
+          </mesh>
+        </group>
+
+        {/* curl / bottom */}
+        <mesh position={[0, -0.4, 0.05]} onClick={stop(() => onSelect("muscles"))} castShadow>
+          <sphereGeometry args={[bodyRadius + 0.04, 40, 40]} />
+          <meshStandardMaterial color={skin.color} roughness={0.6} transparent={skin.opacity < 1} opacity={skin.opacity} emissive={skin.emissive} emissiveIntensity={skin.emissiveIntensity} />
+        </mesh>
+
+        {/* ---- EMBRYONIC TAIL (regresses by ~wk8) ---- */}
+        {tail > 0.02 && (
+          <Bone
+            start={[0, -0.5, -0.05]}
+            end={[0, -0.5 - tail * 0.35, -0.2 - tail * 0.15]}
+            radius={0.08 * tail + 0.03}
+            {...skinSolid}
+            opacity={skin.opacity}
+          />
+        )}
+
+        {/* ---- ARMS ---- */}
+        {[-1, 1].map((s) => {
+          const a = armSet(s);
+          return (
+            <group key={`arm${s}`} onClick={stop(() => onSelect("muscles"))}>
+              <Bone start={a.shoulder} end={a.elbow} radius={limbRadius} {...skin} />
+              <Bone start={a.elbow} end={a.hand} radius={limbRadius * 0.9} {...skin} />
+              <mesh position={a.hand}>
+                <sphereGeometry args={[limbRadius * 1.05, 18, 18]} />
+                <meshStandardMaterial {...skinSolid} transparent={skin.opacity < 1} opacity={skin.opacity} />
+              </mesh>
+            </group>
+          );
+        })}
+
+        {/* ---- LEGS ---- */}
+        {[-1, 1].map((s) => {
+          const l = legSet(s);
+          return (
+            <group key={`leg${s}`} onClick={stop(() => onSelect("muscles"))}>
+              <Bone start={l.hip} end={l.knee} radius={limbRadius * 1.15} {...skin} />
+              <Bone start={l.knee} end={l.foot} radius={limbRadius} {...skin} />
+              <mesh position={l.foot} scale={[1, 0.7, 1.3]}>
+                <sphereGeometry args={[limbRadius * 1.05, 18, 18]} />
+                <meshStandardMaterial {...skinSolid} transparent={skin.opacity < 1} opacity={skin.opacity} />
+              </mesh>
+            </group>
+          );
+        })}
+
+        {/* ---- INTERNAL ORGANS (only when formed for this day) ---- */}
+        {morph.present.heart && (
+          <mesh
+            position={[0.1, 0.26, 0.22]}
+            scale={selected === "heart" ? 1.3 : 1}
+            onClick={stop(() => onSelect("heart"))}
+          >
+            <sphereGeometry args={[0.12, 28, 28]} />
+            <meshStandardMaterial color={ACCENT.heart} emissive={ACCENT.heart} emissiveIntensity={selected === "heart" ? 1 : 0.3} roughness={0.35} />
+          </mesh>
+        )}
+
+        {morph.present.lungs && (
+          <group onClick={stop(() => onSelect("lungs"))}>
+            {[-0.14, 0.14].map((x) => (
+              <mesh key={x} position={[x, 0.32, 0.2]} scale={[1, 1.3, 0.9]}>
+                <sphereGeometry args={[0.12, 24, 24]} />
+                <meshStandardMaterial color={ACCENT.lungs} emissive={ACCENT.lungs} emissiveIntensity={selected === "lungs" ? 0.8 : 0.18} roughness={0.45} />
+              </mesh>
+            ))}
+          </group>
+        )}
+
+        {morph.present.digestive && (
+          <mesh position={[0, 0.0, 0.26]} onClick={stop(() => onSelect("digestive"))}>
+            <torusKnotGeometry args={[0.13, 0.045, 64, 8]} />
+            <meshStandardMaterial color={ACCENT.digestive} emissive={ACCENT.digestive} emissiveIntensity={selected === "digestive" ? 0.8 : 0.2} roughness={0.4} />
+          </mesh>
+        )}
+
+        {/* skeleton: spine + ribs (when bone present + selected) */}
+        {morph.present.skeleton && (
+          <group visible={selected === "skeleton"}>
+            {[0.42, 0.28, 0.14, 0.0, -0.14].map((y, i) => (
+              <mesh key={i} position={[0, y, 0.14 + i * 0.02]} rotation={[Math.PI / 2.2, 0, 0]}>
+                <torusGeometry args={[(bodyRadius + 0.02) - i * 0.02, 0.03, 12, 28]} />
+                <meshStandardMaterial color={ACCENT.skeleton} emissive={ACCENT.skeleton} emissiveIntensity={0.6} />
+              </mesh>
+            ))}
+          </group>
+        )}
       </group>
 
-      {/* ---- PLACENTA (disc beside baby) ---- */}
-      <mesh
-        position={[1.15, 0.35, -0.15]}
-        rotation={[0.2, 0, Math.PI / 2.4]}
-        onClick={stop(() => onSelect("placenta"))}
-        castShadow
-      >
-        <cylinderGeometry args={[0.5, 0.5, 0.16, 48]} />
-        <meshStandardMaterial
-          color={selected === "placenta" ? ACCENT.placenta : "#93A585"}
-          emissive={selected === "placenta" ? ACCENT.placenta : "#000000"}
-          emissiveIntensity={selected === "placenta" ? 0.5 : 0}
-          roughness={0.75}
-        />
-      </mesh>
+      {/* ---- PLACENTA + CORD (only when formed) ---- */}
+      {morph.present.placenta && (
+        <mesh
+          position={[1.05, 0.3, -0.12]}
+          rotation={[0.2, 0, Math.PI / 2.4]}
+          onClick={stop(() => onSelect("placenta"))}
+          castShadow
+        >
+          <cylinderGeometry args={[0.42 + chub * 0.1, 0.42 + chub * 0.1, 0.16, 40]} />
+          <meshStandardMaterial color={selected === "placenta" ? ACCENT.placenta : "#93A585"} emissive={selected === "placenta" ? ACCENT.placenta : "#000000"} emissiveIntensity={selected === "placenta" ? 0.5 : 0} roughness={0.75} />
+        </mesh>
+      )}
 
-      {/* ---- UMBILICAL CORD (helix from belly to placenta) ---- */}
-      <Cord highlighted={selected === "umbilicalCord"} onClick={stop(() => onSelect("umbilicalCord"))} />
+      {morph.present.umbilicalCord && (
+        <Cord highlighted={selected === "umbilicalCord"} onClick={stop(() => onSelect("umbilicalCord"))} />
+      )}
     </group>
   );
 }
@@ -324,16 +365,14 @@ function Cord({
 }) {
   const curve = useMemo(() => {
     const pts: THREE.Vector3[] = [];
-    const start = new THREE.Vector3(0.32, 0.05, 0.42);
-    const end = new THREE.Vector3(1.05, 0.32, -0.1);
+    const start = new THREE.Vector3(0.28, 0.05, 0.34);
+    const end = new THREE.Vector3(0.98, 0.28, -0.08);
     const segs = 60;
     for (let i = 0; i <= segs; i++) {
       const u = i / segs;
       const base = new THREE.Vector3().lerpVectors(start, end, u);
-      const coil = 0.09 * Math.sin(u * Math.PI * 6);
-      const coil2 = 0.09 * Math.cos(u * Math.PI * 6);
-      base.y += coil;
-      base.z += coil2;
+      base.y += 0.09 * Math.sin(u * Math.PI * 6);
+      base.z += 0.09 * Math.cos(u * Math.PI * 6);
       pts.push(base);
     }
     return new THREE.CatmullRomCurve3(pts);
@@ -342,12 +381,7 @@ function Cord({
   return (
     <mesh onClick={onClick}>
       <tubeGeometry args={[curve, 80, highlighted ? 0.07 : 0.05, 12, false]} />
-      <meshStandardMaterial
-        color={highlighted ? ACCENT.umbilicalCord : "#A9BD96"}
-        emissive={highlighted ? ACCENT.umbilicalCord : "#000000"}
-        emissiveIntensity={highlighted ? 0.6 : 0}
-        roughness={0.6}
-      />
+      <meshStandardMaterial color={highlighted ? ACCENT.umbilicalCord : "#A9BD96"} emissive={highlighted ? ACCENT.umbilicalCord : "#000000"} emissiveIntensity={highlighted ? 0.6 : 0} roughness={0.6} />
     </mesh>
   );
 }

@@ -2,181 +2,197 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
-import { Suspense, useState } from "react";
-import { FetusModel, type SystemId } from "./FetusModel";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { FetusModel } from "./FetusModel";
+import {
+  getMorphology,
+  systemFirstWeek,
+  VIEWER_SYSTEMS,
+  type SystemId,
+} from "@/lib/morphology";
+import { getPregnancyState, istTodayISO, weekDayLabel } from "@/lib/pregnancy";
+import { formatLength, formatWeight } from "@/lib/derive";
 
-const SYSTEMS: { id: SystemId; label: string; blurb: string }[] = [
-  {
-    id: "brain",
-    label: "Brain",
-    blurb:
-      "The brain grows rapidly throughout pregnancy, forming billions of neurons and folding into its characteristic shape. Early on the neural tube closes; later, regions specialise for movement, senses and, eventually, memory.",
-  },
-  {
-    id: "heart",
-    label: "Heart",
-    blurb:
-      "One of the first organs to function. It begins as a simple tube that loops and divides into four chambers, beating steadily to circulate blood and nourishment around the growing body.",
-  },
-  {
-    id: "lungs",
-    label: "Lungs",
-    blurb:
-      "The lungs form branching airways and, later, tiny air sacs. They mature late in pregnancy, producing surfactant that will let them expand with that very first breath at birth.",
-  },
-  {
-    id: "skeleton",
-    label: "Skeleton",
-    blurb:
-      "Soft cartilage gradually hardens into bone (ossification). The skull stays flexible with soft spots (fontanelles) to ease birth and allow the brain to keep growing.",
-  },
-  {
-    id: "muscles",
-    label: "Muscles",
-    blurb:
-      "Muscle tissue strengthens over time, powering the kicks, stretches and hiccups that parents come to feel. Practice movements help joints and limbs develop.",
-  },
-  {
-    id: "digestive",
-    label: "Digestive tract",
-    blurb:
-      "The stomach, intestines and liver take shape and begin practising. The baby swallows amniotic fluid, and the intestines coil and mature ready to absorb nutrients after birth.",
-  },
-  {
-    id: "placenta",
-    label: "Placenta",
-    blurb:
-      "The baby's lifeline organ. It exchanges oxygen, nutrients and waste between parent and baby, and produces hormones that sustain the pregnancy.",
-  },
-  {
-    id: "umbilicalCord",
-    label: "Umbilical cord",
-    blurb:
-      "A flexible cord of two arteries and one vein, carrying nourishment and oxygen from the placenta to the baby and returning waste — the baby's supply line.",
-  },
-];
+const LABELS: Record<SystemId, string> = {
+  brain: "Brain",
+  heart: "Heart",
+  lungs: "Lungs",
+  digestive: "Digestive",
+  skeleton: "Skeleton",
+  muscles: "Muscles",
+  placenta: "Placenta",
+  umbilicalCord: "Cord",
+};
 
-export function FetusViewer({ initialScale = 1 }: { initialScale?: number }) {
+const BLURBS: Record<SystemId, string> = {
+  brain:
+    "The brain grows rapidly throughout pregnancy — forming billions of neurons and folding into its characteristic shape as regions specialise.",
+  heart:
+    "One of the first organs to work. A simple tube loops and divides into four chambers, beating to circulate blood and nourishment.",
+  lungs:
+    "Airways branch and tiny air sacs form. The lungs mature late, making surfactant that lets them expand with that first breath.",
+  digestive:
+    "Stomach, intestines and liver take shape and practise — the baby swallows fluid as the gut coils and matures.",
+  skeleton:
+    "Soft cartilage gradually hardens into bone. The skull stays flexible with soft spots to ease birth and let the brain grow.",
+  muscles:
+    "Muscle tissue strengthens over time, powering the kicks, stretches and hiccups parents come to feel.",
+  placenta:
+    "The baby's lifeline organ — exchanging oxygen, nutrients and waste, and producing hormones that sustain the pregnancy.",
+  umbilicalCord:
+    "Two arteries and one vein carry nourishment from the placenta to the baby and return waste — the baby's supply line.",
+};
+
+const REFERENCE_ISO = "2026-06-26";
+
+export function FetusViewer() {
+  const [todayISO, setTodayISO] = useState(REFERENCE_ISO);
+  const [day, setDay] = useState<number>(74);
   const [selected, setSelected] = useState<SystemId | null>("heart");
-  const [growth, setGrowth] = useState(initialScale);
+  const [followToday, setFollowToday] = useState(true);
 
-  const active = SYSTEMS.find((s) => s.id === selected) ?? null;
+  // On mount, sync to live IST today.
+  useEffect(() => {
+    const iso = istTodayISO();
+    setTodayISO(iso);
+    const s = getPregnancyState(iso);
+    setDay(s.dayOfPregnancy);
+  }, []);
+
+  const todayDay = useMemo(
+    () => getPregnancyState(todayISO).dayOfPregnancy,
+    [todayISO],
+  );
+
+  const morph = useMemo(() => getMorphology(day), [day]);
+
+  // Keep the selection valid — if the chosen system hasn't formed yet, fall back.
+  useEffect(() => {
+    if (selected && !morph.present[selected]) {
+      const firstAvailable = VIEWER_SYSTEMS.find((s) => morph.present[s]) ?? null;
+      setSelected(firstAvailable);
+    }
+  }, [morph, selected]);
+
+  const setDayClamped = (n: number) => {
+    setFollowToday(false);
+    setDay(Math.min(280, Math.max(1, Math.round(n))));
+  };
+
+  const active = selected;
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
       {/* Canvas */}
       <div className="glass relative h-[460px] overflow-hidden rounded-4xl sm:h-[560px]">
-        <Canvas
-          shadows
-          dpr={[1, 2]}
-          camera={{ position: [2.2, 1.2, 3.2], fov: 40 }}
-        >
+        <Canvas shadows dpr={[1, 2]} camera={{ position: [2.2, 1.2, 3.2], fov: 40 }}>
           <Suspense fallback={null}>
             <color attach="background" args={["#1d1822"]} />
             <fog attach="fog" args={["#1d1822", 6, 12]} />
             <ambientLight intensity={0.45} />
-            <directionalLight
-              position={[4, 6, 4]}
-              intensity={1.6}
-              castShadow
-              shadow-mapSize={[2048, 2048]}
-            />
-            <spotLight
-              position={[-5, 4, 2]}
-              angle={0.5}
-              penumbra={1}
-              intensity={0.8}
-              color="#E07A5F"
-            />
+            <directionalLight position={[4, 6, 4]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
+            <spotLight position={[-5, 4, 2]} angle={0.5} penumbra={1} intensity={0.8} color="#E07A5F" />
             <pointLight position={[0, -2, 3]} intensity={0.3} color="#F4C6B4" />
-            <FetusModel
-              selected={selected}
-              scale={0.9 * growth}
-              onSelect={setSelected}
-            />
-            <ContactShadows
-              position={[0, -1.15, 0]}
-              opacity={0.4}
-              scale={6}
-              blur={2.6}
-              far={3}
-            />
+            <FetusModel morph={morph} selected={selected} onSelect={setSelected} />
+            <ContactShadows position={[0, -1.15, 0]} opacity={0.4} scale={6} blur={2.6} far={3} />
             <Environment preset="sunset" />
-            <OrbitControls
-              enablePan
-              enableZoom
-              minDistance={2}
-              maxDistance={7}
-              autoRotate={false}
-              target={[0, 0.1, 0.2]}
-            />
+            <OrbitControls enablePan enableZoom minDistance={2} maxDistance={7} target={[0, 0.1, 0.2]} />
           </Suspense>
         </Canvas>
 
-        <div className="pointer-events-none absolute left-4 top-4 rounded-full glass px-3 py-1 text-xs text-muted">
-          Drag to rotate · scroll to zoom · two-finger to pan
+        {/* Stage overlay */}
+        <div className="pointer-events-none absolute left-4 top-4 space-y-1">
+          <div className="rounded-full glass px-3 py-1 text-xs font-medium text-ink">
+            Day {morph.day} · {weekDayLabel(morph.day)} · {morph.stageLabel}
+          </div>
+          <div className="rounded-full glass px-3 py-1 text-[11px] text-muted">
+            {formatLength(morph.lengthMm)} · {formatWeight(morph.weightG)}
+          </div>
+        </div>
+        <div className="pointer-events-none absolute bottom-4 left-4 rounded-full glass px-3 py-1 text-[11px] text-muted">
+          drag to rotate · scroll to zoom
         </div>
       </div>
 
       {/* Controls + info */}
       <div className="space-y-4">
-        <div className="glass rounded-4xl p-5">
-          <h3 className="font-display text-lg font-semibold text-plum">
-            Body systems
-          </h3>
-          <p className="mt-1 text-sm text-muted">
-            Tap a system to highlight it and read how it develops.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {SYSTEMS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSelected(s.id)}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  selected === s.id
-                    ? "bg-terracotta text-white"
-                    : "bg-linen text-muted hover:text-ink"
-                }`}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {active && (
-          <div className="glass rounded-4xl p-5">
-            <h4 className="font-display text-xl font-semibold text-terracotta">
-              {active.label}
-            </h4>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              {active.blurb}
-            </p>
-          </div>
-        )}
-
+        {/* DAY SLIDER — drives the whole model */}
         <div className="glass rounded-4xl p-5">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-ink">Growth progression</h4>
-            <span className="text-xs text-muted">
-              {Math.round(growth * 100)}%
+            <h3 className="font-display text-lg font-semibold text-plum">
+              Day of growth
+            </h3>
+            <span className="font-display text-xl font-semibold text-terracotta">
+              {morph.day}
             </span>
           </div>
           <input
             type="range"
-            min={0.5}
-            max={1.5}
-            step={0.01}
-            value={growth}
-            onChange={(e) => setGrowth(Number(e.target.value))}
+            min={1}
+            max={280}
+            step={1}
+            value={day}
+            onChange={(e) => setDayClamped(Number(e.target.value))}
             className="mt-3 w-full accent-[color:rgb(var(--terracotta))]"
-            aria-label="Growth progression"
+            aria-label="Day of pregnancy"
           />
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button onClick={() => setDayClamped(day - 7)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">−7d</button>
+            <button onClick={() => setDayClamped(day + 7)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">+7d</button>
+            <button
+              onClick={() => { setFollowToday(true); setDay(todayDay); }}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${
+                followToday ? "bg-terracotta text-white" : "bg-linen text-muted hover:text-ink"
+              }`}
+            >
+              Today ({todayDay})
+            </button>
+            <button onClick={() => setDayClamped(280)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">Birth</button>
+          </div>
           <p className="mt-2 text-xs text-muted">
-            Slide to see the overall form scale across the pregnancy. This is an
-            artistic, educational representation — not a medical scan.
+            The shape, proportions and visible organs all change with the day —
+            an artistic educational model, not a medical scan.
           </p>
         </div>
+
+        {/* SYSTEM SELECTOR */}
+        <div className="glass rounded-4xl p-5">
+          <h3 className="font-display text-lg font-semibold text-plum">Body systems</h3>
+          <p className="mt-1 text-sm text-muted">
+            Tap a system to highlight it. Greyed-out systems haven&apos;t formed yet at day {morph.day}.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {VIEWER_SYSTEMS.map((s) => {
+              const formed = morph.present[s];
+              return (
+                <button
+                  key={s}
+                  disabled={!formed}
+                  onClick={() => setSelected(s)}
+                  title={formed ? undefined : `Forms around week ${systemFirstWeek(s)}`}
+                  className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                    selected === s
+                      ? "bg-terracotta text-white"
+                      : formed
+                        ? "bg-linen text-muted hover:text-ink"
+                        : "cursor-not-allowed bg-linen/40 text-muted/40"
+                  }`}
+                >
+                  {LABELS[s]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {active && morph.present[active] && (
+          <div className="glass rounded-4xl p-5">
+            <h4 className="font-display text-xl font-semibold text-terracotta">
+              {LABELS[active]}
+            </h4>
+            <p className="mt-2 text-sm leading-relaxed text-muted">{BLURBS[active]}</p>
+          </div>
+        )}
       </div>
     </div>
   );
