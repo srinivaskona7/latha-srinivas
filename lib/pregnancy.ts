@@ -105,6 +105,21 @@ export function getPregnancyState(
   const daysRemaining = clamp(TERM_DAYS - completed, 0, TERM_DAYS);
   const progressPct = clamp((completed / TERM_DAYS) * 100, 0, 100);
 
+  // Completed calendar months & days
+  const lmpDate = new Date(isoToUTC(lmp));
+  const todayDate = new Date(isoToUTC(todayISO));
+  let completedCalendarMonths = todayDate.getFullYear() * 12 + todayDate.getMonth() - (lmpDate.getFullYear() * 12 + lmpDate.getMonth());
+  let completedCalendarDays = todayDate.getDate() - lmpDate.getDate();
+  if (completedCalendarDays < 0) {
+    completedCalendarMonths--;
+    const prevMonth = new Date(todayDate.getFullYear(), todayDate.getMonth(), 0);
+    completedCalendarDays += prevMonth.getDate();
+  }
+
+  // Completed 30-day months & days
+  const completed30DayMonths = Math.floor(completed / 30);
+  const completed30DayDays = completed % 30;
+
   return {
     todayISO,
     dayOfPregnancy,
@@ -121,6 +136,10 @@ export function getPregnancyState(
     progressPct,
     preStart,
     postTerm,
+    completedCalendarMonths,
+    completedCalendarDays,
+    completed30DayMonths,
+    completed30DayDays,
   };
 }
 

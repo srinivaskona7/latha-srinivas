@@ -108,6 +108,10 @@ export interface PregnancyState {
   progressPct: number; // 0..100
   preStart: boolean; // today is before LMP
   postTerm: boolean; // past 280 days
+  completedCalendarMonths: number;
+  completedCalendarDays: number;
+  completed30DayMonths: number;
+  completed30DayDays: number;
 }
 
 /** Fully derived view of a single day (1..280). */
