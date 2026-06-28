@@ -57,25 +57,13 @@ export function TodayView() {
                 <span className="text-terracotta">{state.gaDays} days</span>
               </h1>
               {state.daysCompleted > 0 && (
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-muted">
-                  <span>
-                    Calendar age:{" "}
-                    <span className="text-ink">
-                      {state.completedCalendarMonths} {state.completedCalendarMonths === 1 ? "month" : "months"}{" "}
-                      {state.completedCalendarDays} {state.completedCalendarDays === 1 ? "day" : "days"}
-                    </span>
+                <p className="text-sm font-medium text-muted">
+                  Calendar age:{" "}
+                  <span className="text-ink">
+                    {state.completedCalendarMonths} {state.completedCalendarMonths === 1 ? "month" : "months"}{" "}
+                    {state.completedCalendarDays} {state.completedCalendarDays === 1 ? "day" : "days"}
                   </span>
-                  <span className="text-muted/30" aria-hidden>
-                    |
-                  </span>
-                  <span>
-                    30-day count:{" "}
-                    <span className="text-ink">
-                      {state.completed30DayMonths} {state.completed30DayMonths === 1 ? "month" : "months"}{" "}
-                      {state.completed30DayDays} {state.completed30DayDays === 1 ? "day" : "days"}
-                    </span>
-                  </span>
-                </div>
+                </p>
               )}
               <p className="max-w-md text-muted">
                 Today your baby is about the size of a{" "}
