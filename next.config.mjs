@@ -21,6 +21,8 @@ const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
   basePath,
+  // Don't fail the production build / CI deploy on lint; we lint separately.
+  eslint: { ignoreDuringBuilds: true },
   env: {
     // Exposed to client/layout so manifest + icon links can include the base path.
     NEXT_PUBLIC_BASE_PATH: basePath,
