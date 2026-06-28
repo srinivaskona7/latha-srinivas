@@ -16,8 +16,8 @@ const ACCENT: Record<SystemId, string> = {
   lungs: "#FF8E7E",
   digestive: "#FFB04C",
   muscles: "#D64C3B",
-  placenta: "#86997A",
-  umbilicalCord: "#9BB389",
+  placenta: "#A63A2B",
+  umbilicalCord: "#C68E84",
 };
 
 const INTERNAL: SystemId[] = ["brain", "heart", "lungs", "digestive"];
@@ -52,7 +52,7 @@ function Bone({
     const s = new THREE.Vector3(...start);
     const e = new THREE.Vector3(...end);
     const dir = new THREE.Vector3().subVectors(e, s);
-    const len = Math.max(0.01, dir.length() - radius);
+    const len = Math.max(0.01, dir.length() - radius * 2);
     const mid = new THREE.Vector3().addVectors(s, e).multiplyScalar(0.5);
     const q = new THREE.Quaternion().setFromUnitVectors(
       new THREE.Vector3(0, 1, 0),
@@ -66,8 +66,8 @@ function Bone({
       <capsuleGeometry args={[radius, length, 16, 24]} />
       <meshPhysicalMaterial
         color={color}
-        roughness={0.42}
-        metalness={0.02}
+        roughness={0.52}
+        metalness={0.0}
         transparent={opacity < 1}
         opacity={opacity}
         emissive={emissive}
@@ -77,8 +77,8 @@ function Bone({
         ior={ior}
         sheen={0.8}
         sheenColor="#FFE3D4"
-        clearcoat={0.2}
-        clearcoatRoughness={0.25}
+        clearcoat={0.05}
+        clearcoatRoughness={0.2}
       />
     </mesh>
   );
@@ -104,9 +104,9 @@ export function FetusModel({
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    if (!reduce) group.current.rotation.y += delta * 0.12;
+    if (!reduce) group.current.rotation.y += delta * 0.1;
     const t = state.clock.elapsedTime;
-    group.current.position.y = -0.15 + (reduce ? 0 : Math.sin(t * 0.5) * 0.02);
+    group.current.position.y = -0.15 + (reduce ? 0 : Math.sin(t * 0.4) * 0.015);
   });
 
   const { headRatio, limbExtend, tail, chub, curl, hasFeatures, hasEyeSpots, displayScale } =
@@ -114,31 +114,31 @@ export function FetusModel({
 
   const seeInside = selected !== null && INTERNAL.includes(selected);
   
-  // Dynamic translucency based on week (Month 1-2 are extremely translucent)
+  // Real skin parameters to look natural (not like shiny glass balls)
   const isEarly = morph.week < 11;
   const isMid = morph.week >= 11 && morph.week < 24;
-  const skinOpacity = seeInside ? 0.3 : morph.baseSkinOpacity;
+  const skinOpacity = seeInside ? 0.35 : morph.baseSkinOpacity;
   
-  // Real SSS effect: high transmission early, tapering down later, keeping soft light reflection
-  const baseTransmission = seeInside ? 0.88 : isEarly ? 0.76 : isMid ? 0.45 : 0.18;
-  const skinRoughness = isEarly ? 0.28 : isMid ? 0.42 : 0.48;
-  const skinClearcoat = isEarly ? 0.42 : 0.2;
+  // Drastically reduced transmission to remove glassy balloon appearance
+  const baseTransmission = seeInside ? 0.85 : isEarly ? 0.32 : isMid ? 0.06 : 0.0;
+  const skinRoughness = isEarly ? 0.44 : isMid ? 0.52 : 0.56;
+  const skinClearcoat = isEarly ? 0.12 : 0.02;
 
   const skinColor =
     selected === "muscles"
-      ? "#D85E46"
+      ? "#C44C36"
       : selected === "skeleton"
-        ? "#F5E6D8"
+        ? "#F2E2D2"
         : isEarly
-          ? "#FFA48E"  // warm reddish translucent
+          ? "#FFB09C"  // embryonic skin
           : isMid
-            ? "#FFB299"  // warm pink-peach
-            : "#F6C1A4"; // opaque baby skin
+            ? "#FFBEA8"  // warm peach pink
+            : "#F3BEA2"; // healthy baby skin
 
   const skinEmissive =
-    selected === "muscles" || selected === "skeleton" ? ACCENT[selected] : "#B85542";
+    selected === "muscles" || selected === "skeleton" ? ACCENT[selected] : "#421812";
   const skinEmissiveI =
-    selected === "muscles" ? 0.35 : selected === "skeleton" ? 0.18 : isEarly ? 0.28 : 0.08;
+    selected === "muscles" ? 0.3 : selected === "skeleton" ? 0.15 : isEarly ? 0.15 : 0.05;
 
   const skinMat = {
     color: skinColor,
@@ -146,19 +146,21 @@ export function FetusModel({
     emissive: skinEmissive,
     emissiveIntensity: skinEmissiveI,
     transmission: baseTransmission,
-    thickness: isEarly ? 0.3 : isMid ? 0.6 : 0.9,
-    ior: 1.38,
+    thickness: isEarly ? 0.4 : isMid ? 0.75 : 1.0,
+    ior: 1.36,
     roughness: skinRoughness,
     clearcoat: skinClearcoat,
-    clearcoatRoughness: 0.15,
-    sheen: 0.9,
+    clearcoatRoughness: 0.25,
+    sheen: 0.85,
     sheenColor: "#FFE3D4",
   };
 
   const skinSolid = {
     color: skinColor,
     roughness: skinRoughness + 0.05,
-    metalness: 0.02,
+    metalness: 0.0,
+    emissive: skinEmissive,
+    emissiveIntensity: skinEmissiveI,
   };
 
   const stop = (fn: () => void) => (e: { stopPropagation: () => void }) => {
@@ -173,13 +175,13 @@ export function FetusModel({
   const bellyR = 0.28 + chub * 0.2;
   const limbRadius = 0.07 + limbExtend * 0.065 + chub * 0.028;
 
-  // Arm joints naturally curled near the chest/face
+  // Arm joints naturally curled near chest/face
   const armSet = (s: number) => {
-    const shoulder: Vec = [s * 0.24, 0.32, 0.14];
-    const elbowBud: Vec = [s * 0.3, 0.24, 0.22];
-    const elbowFull: Vec = [s * 0.42, 0.05, 0.42];
-    const handBud: Vec = [s * 0.3, 0.2, 0.28];
-    const handFull: Vec = [s * 0.14, 0.34, 0.52]; // hands near chin
+    const shoulder: Vec = [s * 0.24, 0.3, 0.12];
+    const elbowBud: Vec = [s * 0.3, 0.22, 0.2];
+    const elbowFull: Vec = [s * 0.4, 0.04, 0.38];
+    const handBud: Vec = [s * 0.3, 0.18, 0.26];
+    const handFull: Vec = [s * 0.14, 0.32, 0.48]; // hands near mouth
     return {
       shoulder,
       elbow: v(elbowBud, elbowFull, limbExtend),
@@ -189,11 +191,11 @@ export function FetusModel({
 
   // Leg joints naturally curled up
   const legSet = (s: number) => {
-    const hip: Vec = [s * 0.16, -0.3, 0.1];
-    const kneeBud: Vec = [s * 0.22, -0.24, 0.22];
-    const kneeFull: Vec = [s * 0.4, -0.12, 0.5];
-    const footBud: Vec = [s * 0.22, -0.28, 0.28];
-    const footFull: Vec = [s * 0.18, 0.16, 0.52];
+    const hip: Vec = [s * 0.16, -0.28, 0.08];
+    const kneeBud: Vec = [s * 0.22, -0.22, 0.2];
+    const kneeFull: Vec = [s * 0.38, -0.1, 0.46];
+    const footBud: Vec = [s * 0.22, -0.26, 0.26];
+    const footFull: Vec = [s * 0.16, 0.18, 0.48];
     return {
       hip,
       knee: v(kneeBud, kneeFull, limbExtend),
@@ -202,11 +204,11 @@ export function FetusModel({
   };
 
   return (
-    <group ref={group} scale={displayScale} position={[0, -0.15, 0]}>
+    <group ref={group} scale={displayScale} position={[0, -0.1, 0]}>
       <group scale={curl < 0.8 ? 1.05 : 1}>
         
-        {/* ---- HEAD (Organic Egg/Pear-shape, tilted forward) ---- */}
-        <group position={[0, headY, 0.14]} rotation={[0.26, 0, 0]} scale={[0.88, 1.05, 0.96]}>
+        {/* ---- HEAD (Organic Pear-shape, tilted forward) ---- */}
+        <group position={[0, headY, 0.12]} rotation={[0.28, 0, 0]} scale={[0.88, 1.05, 0.96]}>
           <mesh onClick={stop(() => onSelect("brain"))} castShadow>
             <sphereGeometry args={[headR, 48, 48]} />
             <meshPhysicalMaterial {...skinMat} />
@@ -225,55 +227,65 @@ export function FetusModel({
             ))
           )}
 
+          {/* Brow Ridge (Month 3+) */}
+          {hasFeatures && (
+            <mesh position={[0, headR * 0.18, headR * 0.86]} scale={[1, 0.3, 0.3]}>
+              <sphereGeometry args={[headR * 0.45, 16, 16]} />
+              <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
+            </mesh>
+          )}
+
           {/* Eyelids & Closed Eyes (Month 3+) */}
           {hasFeatures && (
             [-1, 1].map((s) => (
-              <group key={`eye-${s}`} position={[s * headR * 0.35, headR * 0.06, headR * 0.8]}>
+              <group key={`eye-${s}`} position={[s * headR * 0.3, headR * 0.08, headR * 0.94]}>
                 {/* Upper closed eyelid fold */}
-                <mesh scale={[1, 0.38, 0.32]} rotation={[0, 0, -s * 0.08]}>
-                  <sphereGeometry args={[headR * 0.14, 16, 16]} />
+                <mesh scale={[1, 0.4, 0.35]} rotation={[0, 0, -s * 0.08]}>
+                  <sphereGeometry args={[headR * 0.12, 16, 16]} />
                   <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
                 </mesh>
               </group>
             ))
           )}
 
-          {/* Organic Face Features */}
+          {/* Organic Face Features (positioned outside the sphere so they show!) */}
           {hasFeatures && (
             <>
-              {/* Nose */}
-              <mesh position={[0, -headR * 0.08, headR * 0.94]} scale={[0.8, 1.1, 0.95]}>
-                <sphereGeometry args={[headR * 0.11, 20, 20]} />
-                <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
-              </mesh>
+              {/* Nose Bridge and Tip */}
+              <group position={[0, -headR * 0.08, headR * 1.01]} scale={[0.8, 1.0, 0.95]} rotation={[0.08, 0, 0]}>
+                <mesh>
+                  <capsuleGeometry args={[headR * 0.09, headR * 0.14, 8, 12]} />
+                  <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
+                </mesh>
+              </group>
               {/* Cheeks */}
               {[-1, 1].map((s) => (
-                <mesh key={`cheek-${s}`} position={[s * headR * 0.34, -headR * 0.2, headR * 0.74]}>
+                <mesh key={`cheek-${s}`} position={[s * headR * 0.36, -headR * 0.16, headR * 0.9]}>
                   <sphereGeometry args={[headR * 0.22, 20, 20]} />
                   <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
                 </mesh>
               ))}
               {/* Ears */}
               {[-1, 1].map((s) => (
-                <mesh key={`ear-${s}`} position={[s * headR * 0.86, -headR * 0.1, 0.02]} scale={[0.35, 0.85, 0.65]} rotation={[0.08, 0, -s * 0.15]}>
+                <mesh key={`ear-${s}`} position={[s * headR * 0.86, -headR * 0.08, 0.02]} scale={[0.35, 0.85, 0.65]} rotation={[0.08, 0, -s * 0.15]}>
                   <sphereGeometry args={[headR * 0.26, 20, 20]} />
                   <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
                 </mesh>
               ))}
-              {/* Lips / Mouth Cleft */}
-              <group position={[0, -headR * 0.25, headR * 0.84]} scale={[1.1, 0.3, 0.35]}>
-                <mesh position={[0, 0.04, 0]}>
-                  <sphereGeometry args={[headR * 0.07, 16, 16]} />
+              {/* Mouth & Lips (upper and lower lips) */}
+              <group position={[0, -headR * 0.22, headR * 0.96]} scale={[1.1, 0.3, 0.35]}>
+                <mesh position={[0, 0.03, 0]}>
+                  <capsuleGeometry args={[headR * 0.05, headR * 0.14, 4, 8]} />
                   <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
                 </mesh>
-                <mesh position={[0, -0.04, 0]}>
-                  <sphereGeometry args={[headR * 0.06, 16, 16]} />
+                <mesh position={[0, -0.03, 0]}>
+                  <capsuleGeometry args={[headR * 0.045, headR * 0.12, 4, 8]} />
                   <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
                 </mesh>
               </group>
               {/* Chin */}
-              <mesh position={[0, -headR * 0.35, headR * 0.7]}>
-                <sphereGeometry args={[headR * 0.13, 16, 16]} />
+              <mesh position={[0, -headR * 0.34, headR * 0.88]}>
+                <sphereGeometry args={[headR * 0.14, 16, 16]} />
                 <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
               </mesh>
             </>
@@ -286,44 +298,66 @@ export function FetusModel({
           </mesh>
         </group>
 
-        {/* ---- ORGANIC C-CURVE TORSO (14 overlapping nodes) ---- */}
+        {/* ---- ORGANIC SMOOTH TORSO (Overlapping Capsules instead of spheres) ---- */}
         <group onClick={stop(() => onSelect("muscles"))}>
-          {Array.from({ length: 14 }).map((_, idx) => {
-            const t = idx / 13;
-            // Curves back smoothly forming the C-shape
-            const y = 0.38 - t * 0.74;
-            const z = 0.05 - Math.sin(t * Math.PI) * 0.18 * curl;
-            // Tapered radius: neck -> chest -> belly -> bottom
-            const r = bodyRadius * (
-              t < 0.1 
-                ? 0.8  // neck
-                : t < 0.45 
-                  ? 1.0  // chest
-                  : t < 0.8 
-                    ? 1.05 + chub * 0.08  // belly
-                    : 0.95 - (t - 0.8) * 0.6 // lower back/bottom
-            );
-            return (
-              <mesh key={`spine-${idx}`} position={[0, y, z]} castShadow>
-                <sphereGeometry args={[r, 24, 24]} />
-                <meshPhysicalMaterial {...skinMat} />
-              </mesh>
-            );
-          })}
-
-          {/* Belly & Chest front overlay (for perfect baby-belly profile) */}
-          <mesh position={[0, 0.02, 0.2 + chub * 0.04]} castShadow>
-            <sphereGeometry args={[bellyR, 32, 32]} />
-            <meshPhysicalMaterial {...skinMat} />
-          </mesh>
+          {/* Neck bridge */}
+          <Bone
+            start={[0, 0.42, 0.1]}
+            end={[0, 0.3, 0.12]}
+            radius={bodyRadius * 0.72}
+            color={skinColor}
+            opacity={skinOpacity}
+            transmission={baseTransmission}
+            thickness={isEarly ? 0.4 : 0.8}
+          />
+          {/* Upper Chest */}
+          <Bone
+            start={[0, 0.32, 0.12]}
+            end={[0, 0.15, 0.16]}
+            radius={bodyRadius * 0.98}
+            color={skinColor}
+            opacity={skinOpacity}
+            transmission={baseTransmission}
+            thickness={isEarly ? 0.4 : 0.8}
+          />
+          {/* Mid Abdomen (Belly) */}
+          <Bone
+            start={[0, 0.18, 0.16]}
+            end={[0, -0.06, 0.2]}
+            radius={bellyR * 1.02}
+            color={skinColor}
+            opacity={skinOpacity}
+            transmission={baseTransmission}
+            thickness={isEarly ? 0.4 : 0.8}
+          />
+          {/* Lower Abdomen */}
+          <Bone
+            start={[0, -0.04, 0.2]}
+            end={[0, -0.22, 0.14]}
+            radius={bellyR * 0.95}
+            color={skinColor}
+            opacity={skinOpacity}
+            transmission={baseTransmission}
+            thickness={isEarly ? 0.4 : 0.8}
+          />
+          {/* Pelvis */}
+          <Bone
+            start={[0, -0.18, 0.14]}
+            end={[0, -0.34, 0.04]}
+            radius={bodyRadius * 0.86}
+            color={skinColor}
+            opacity={skinOpacity}
+            transmission={baseTransmission}
+            thickness={isEarly ? 0.4 : 0.8}
+          />
         </group>
 
         {/* ---- EMBRYONIC TAIL (regresses by ~wk8) ---- */}
         {tail > 0.02 && (
           <Bone
-            start={[0, -0.44, -0.04]}
-            end={[0, -0.46 - tail * 0.28, -0.14 - tail * 0.12]}
-            radius={0.055 * tail + 0.025}
+            start={[0, -0.42, -0.04]}
+            end={[0, -0.45 - tail * 0.26, -0.12 - tail * 0.1]}
+            radius={0.05 * tail + 0.02}
             color={skinColor}
             opacity={skinOpacity}
             transmission={baseTransmission}
@@ -349,13 +383,13 @@ export function FetusModel({
               </mesh>
               <Bone start={a.elbow} end={a.hand} radius={limbRadius * 0.82} color={skinColor} opacity={skinOpacity} transmission={baseTransmission} />
               
-              {/* Hand Palm (tapers or forms digits) */}
+              {/* Hand Palm */}
               <mesh position={a.hand} scale={[0.8, 0.46, 1.1]}>
                 <sphereGeometry args={[limbRadius * 1.0, 16, 16]} />
                 <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
               </mesh>
 
-              {/* Individual fingers (Month 3+ / week >= 11) */}
+              {/* Individual fingers (Month 3+) */}
               {morph.hasDigits && [-2, -1, 0, 1, 2].map((fi) => {
                 const fingerPos: Vec = [
                   a.hand[0] + fi * limbRadius * 0.2 * s,
@@ -391,7 +425,7 @@ export function FetusModel({
               </mesh>
               <Bone start={l.knee} end={l.foot} radius={limbRadius * 0.9} color={skinColor} opacity={skinOpacity} transmission={baseTransmission} />
               
-              {/* Foot arch (curled) */}
+              {/* Foot arch */}
               <mesh position={l.foot} scale={[1, 0.46, 1.35]} rotation={[0.12, 0, 0]}>
                 <sphereGeometry args={[limbRadius * 1.05, 16, 16]} />
                 <meshStandardMaterial {...skinSolid} transparent={skinOpacity < 1} opacity={skinOpacity} />
@@ -457,7 +491,7 @@ export function FetusModel({
         )}
       </group>
 
-      {/* ---- PLACENTA & UMBILICAL CORD ---- */}
+      {/* ---- ORGANIC DEEP-RED PLACENTA & UMBILICAL CORD ---- */}
       {morph.present.placenta && (
         <mesh
           position={[1.05, 0.24, -0.08]}
@@ -466,7 +500,13 @@ export function FetusModel({
           castShadow
         >
           <cylinderGeometry args={[0.42 + chub * 0.1, 0.42 + chub * 0.1, 0.14, 40]} />
-          <meshStandardMaterial color={selected === "placenta" ? ACCENT.placenta : "#8C9D7F"} emissive={selected === "placenta" ? ACCENT.placenta : "#000000"} emissiveIntensity={selected === "placenta" ? 0.5 : 0} roughness={0.75} />
+          <meshStandardMaterial
+            color={selected === "placenta" ? ACCENT.placenta : "#9C3A2B"}
+            emissive={selected === "placenta" ? ACCENT.placenta : "#2A0E0A"}
+            emissiveIntensity={selected === "placenta" ? 0.6 : 0.15}
+            roughness={0.82}
+            metalness={0.0}
+          />
         </mesh>
       )}
 
@@ -508,9 +548,16 @@ function Cord({
   return (
     <mesh onClick={onClick}>
       <tubeGeometry args={[curve, 80, highlighted ? 0.055 : 0.038, 12, false]} />
-      <meshStandardMaterial color={highlighted ? ACCENT.umbilicalCord : "#A3BA98"} emissive={highlighted ? ACCENT.umbilicalCord : "#000000"} emissiveIntensity={highlighted ? 0.6 : 0} roughness={0.6} />
+      <meshPhysicalMaterial
+        color={highlighted ? ACCENT.umbilicalCord : "#D2988E"}
+        emissive={highlighted ? ACCENT.umbilicalCord : "#5A1E14"}
+        emissiveIntensity={highlighted ? 0.7 : 0.15}
+        transmission={0.28}
+        thickness={0.4}
+        ior={1.34}
+        roughness={0.48}
+        clearcoat={0.1}
+      />
     </mesh>
   );
 }
-
-

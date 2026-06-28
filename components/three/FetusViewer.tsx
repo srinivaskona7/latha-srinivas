@@ -87,15 +87,14 @@ export function FetusViewer() {
       <div className="glass relative h-[460px] overflow-hidden rounded-4xl sm:h-[560px]">
         <Canvas shadows dpr={[1, 2]} camera={{ position: [2.2, 1.2, 3.2], fov: 40 }}>
           <Suspense fallback={null}>
-            <color attach="background" args={["#1d1822"]} />
-            <fog attach="fog" args={["#1d1822", 6, 12]} />
-            <ambientLight intensity={0.45} />
-            <directionalLight position={[4, 6, 4]} intensity={1.6} castShadow shadow-mapSize={[2048, 2048]} />
-            <spotLight position={[-5, 4, 2]} angle={0.5} penumbra={1} intensity={0.8} color="#E07A5F" />
-            <pointLight position={[0, -2, 3]} intensity={0.3} color="#F4C6B4" />
+            <color attach="background" args={["#150705"]} />
+            <fog attach="fog" args={["#150705", 5, 10]} />
+            <ambientLight intensity={0.25} color="#FFECE6" />
+            <directionalLight position={[4, 4, 4]} intensity={1.4} color="#FFD6C5" castShadow shadow-mapSize={[2048, 2048]} />
+            <spotLight position={[-4, 2, -3]} angle={0.6} penumbra={1} intensity={2.4} color="#FFA080" />
+            <pointLight position={[0, -3, 2]} intensity={0.6} color="#E07A5F" />
             <FetusModel morph={morph} selected={selected} onSelect={setSelected} />
             <ContactShadows position={[0, -1.15, 0]} opacity={0.4} scale={6} blur={2.6} far={3} />
-            <Environment preset="sunset" />
             <OrbitControls enablePan enableZoom minDistance={2} maxDistance={7} target={[0, 0.1, 0.2]} />
           </Suspense>
         </Canvas>
