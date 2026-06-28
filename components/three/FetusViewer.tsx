@@ -85,17 +85,47 @@ export function FetusViewer() {
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
       {/* Canvas */}
       <div className="glass relative h-[460px] overflow-hidden rounded-4xl sm:h-[560px]">
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [2.2, 1.2, 3.2], fov: 40 }}>
+        <Canvas shadows dpr={[1, 2]} camera={{ position: [1.8, 1.0, 2.8], fov: 44 }}>
           <Suspense fallback={null}>
-            <color attach="background" args={["#150705"]} />
-            <fog attach="fog" args={["#150705", 5, 10]} />
-            <ambientLight intensity={0.25} color="#FFECE6" />
-            <directionalLight position={[4, 4, 4]} intensity={1.4} color="#FFD6C5" castShadow shadow-mapSize={[2048, 2048]} />
-            <spotLight position={[-4, 2, -3]} angle={0.6} penumbra={1} intensity={2.4} color="#FFA080" />
-            <pointLight position={[0, -3, 2]} intensity={0.6} color="#E07A5F" />
+            {/* Warm deep amniotic fluid atmosphere */}
+            <color attach="background" args={["#110504"]} />
+            <fog attach="fog" args={["#200906", 6, 11]} />
+
+            {/* Ambient — soft warm fill, simulates amniotic fluid scatter */}
+            <ambientLight intensity={0.32} color="#FFEAE0" />
+
+            {/* Key light — warm womb glow from upper front */}
+            <directionalLight
+              position={[2.5, 4.5, 3.5]}
+              intensity={1.6}
+              color="#FFD0B0"
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+              shadow-camera-near={0.5}
+              shadow-camera-far={12}
+            />
+
+            {/* Rim light — deep red/orange from behind, creates organic SSS rim glow */}
+            <spotLight
+              position={[-3.0, 2.5, -2.5]}
+              angle={0.55}
+              penumbra={0.9}
+              intensity={3.2}
+              color="#FF7040"
+            />
+
+            {/* Fill light — cool pinkish from the right to balance warm key */}
+            <pointLight position={[2.5, -0.5, 1.5]} intensity={0.9} color="#FFB898" />
+
+            {/* Under light — simulates translucent skin glow from below */}
+            <pointLight position={[0, -2.0, 1.0]} intensity={0.7} color="#E8603A" />
+
+            {/* Top highlight */}
+            <pointLight position={[0, 3.5, 1.0]} intensity={0.45} color="#FFE8DC" />
+
             <FetusModel morph={morph} selected={selected} onSelect={setSelected} />
-            <ContactShadows position={[0, -1.15, 0]} opacity={0.4} scale={6} blur={2.6} far={3} />
-            <OrbitControls enablePan enableZoom minDistance={2} maxDistance={7} target={[0, 0.1, 0.2]} />
+            <ContactShadows position={[0, -1.2, 0]} opacity={0.5} scale={6} blur={2.8} far={3.5} />
+            <OrbitControls enablePan enableZoom minDistance={1.5} maxDistance={7} target={[0, 0.15, 0.1]} />
           </Suspense>
         </Canvas>
 
