@@ -1,16 +1,7 @@
-import withPWAInit from "next-pwa";
-
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-  register: true,
-  skipWaiting: true,
-});
-
 // Detect if we are building in GitHub Actions
 const isGithubActions = process.env.GITHUB_ACTIONS === "true";
-// Change this to your repository name if hosting on srinivaskona7.github.io/<repo-name>
-// Set to empty string if using a Custom Domain on GitHub Pages
+// Repository name for GitHub Pages project sites: srinivaskona7.github.io/<repo>
+// Set to "" if you move to a custom domain or a user/org root site.
 const repoName = "latha-srinivas";
 const basePath = isGithubActions ? `/${repoName}` : "";
 
@@ -21,13 +12,12 @@ const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
   basePath,
-  // Don't fail the production build / CI deploy on lint; we lint separately.
+  // Don't fail the production build / CI deploy on lint.
   eslint: { ignoreDuringBuilds: true },
   env: {
-    // Exposed to client/layout so manifest + icon links can include the base path.
+    // Exposed to the client so manifest + icon links can include the base path.
     NEXT_PUBLIC_BASE_PATH: basePath,
   },
 };
 
-export default withPWA(nextConfig);
-
+export default nextConfig;
