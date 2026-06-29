@@ -40,6 +40,73 @@ const clamp = (n: number, lo: number, hi: number) =>
   Math.min(hi, Math.max(lo, n));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * clamp(t, 0, 1);
 
+/**
+ * Week-accurate fetal heart rate (beats per minute), pure.
+ * Rises from ~110 bpm at first detection (~wk6), peaks ~170 around wk9–10,
+ * then eases to ~140 by term — the clinically observed curve.
+ * Returns 0 before the heart is beating/detectable.
+ */
+export function heartRateBpm(week: number): number {
+  const w = clamp(week, 1, 40);
+  if (w < 6) return 0;
+  if (w <= 9) return Math.round(lerp(110, 170, (w - 6) / 3)); // 6→9: 110→170
+  if (w <= 14) return Math.round(lerp(170, 157, (w - 9) / 5)); // peak settles
+  return Math.round(lerp(157, 140, (w - 14) / 26)); // gentle decline to term
+}
+
+/** A familiar size comparison (fruit/veg/object) for the current week. */
+export interface SizeComparison {
+  emoji: string;
+  label: string;
+}
+
+/** Common week → object size progression. Pure; keyed by gestational week. */
+const SIZE_TABLE: Record<number, SizeComparison> = {
+  4: { emoji: "🌱", label: "poppy seed" },
+  5: { emoji: "🌱", label: "sesame seed" },
+  6: { emoji: "🫛", label: "sweet pea" },
+  7: { emoji: "🫐", label: "blueberry" },
+  8: { emoji: "🫘", label: "kidney bean" },
+  9: { emoji: "🍒", label: "cherry" },
+  10: { emoji: "🍓", label: "strawberry" },
+  11: { emoji: "🫒", label: "fig" },
+  12: { emoji: "🍋", label: "lime" },
+  13: { emoji: "🟡", label: "lemon" },
+  14: { emoji: "🍑", label: "peach" },
+  15: { emoji: "🍎", label: "apple" },
+  16: { emoji: "🥑", label: "avocado" },
+  17: { emoji: "🍐", label: "pear" },
+  18: { emoji: "🫑", label: "bell pepper" },
+  19: { emoji: "🥭", label: "mango" },
+  20: { emoji: "🍌", label: "banana" },
+  21: { emoji: "🥕", label: "carrot" },
+  22: { emoji: "🥬", label: "papaya" },
+  23: { emoji: "🍈", label: "grapefruit" },
+  24: { emoji: "🌽", label: "ear of corn" },
+  25: { emoji: "🥬", label: "cauliflower" },
+  26: { emoji: "🥬", label: "lettuce" },
+  27: { emoji: "🥬", label: "cauliflower" },
+  28: { emoji: "🍆", label: "eggplant" },
+  29: { emoji: "🎃", label: "butternut squash" },
+  30: { emoji: "🥬", label: "cabbage" },
+  31: { emoji: "🥥", label: "coconut" },
+  32: { emoji: "🎃", label: "squash" },
+  33: { emoji: "🍍", label: "pineapple" },
+  34: { emoji: "🍈", label: "cantaloupe" },
+  35: { emoji: "🍈", label: "honeydew melon" },
+  36: { emoji: "🥬", label: "romaine lettuce" },
+  37: { emoji: "🥬", label: "Swiss chard" },
+  38: { emoji: "🧅", label: "leek" },
+  39: { emoji: "🍉", label: "mini watermelon" },
+  40: { emoji: "🎃", label: "small pumpkin" },
+};
+
+/** Resolve the size comparison for a week, clamped to the known table range. */
+export function sizeComparison(week: number): SizeComparison {
+  const w = Math.round(clamp(week, 4, 40));
+  return SIZE_TABLE[w] ?? SIZE_TABLE[4];
+}
+
 /** Numeric growth curve for a gestational week (pure — no data dependency). */
 export interface GrowthParams {
   /** Overall scene scale (compressive map of real length). */
