@@ -238,10 +238,10 @@ export function TodayView() {
       <SectionReveal delay={0.05}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { href: "/timeline", label: "Timeline", icon: "↔" },
+            { href: "/imagine", label: "Imagine baby", icon: "💭" },
             { href: "/explore", label: "3D Baby", icon: "◉" },
             { href: `/week/${state.week}`, label: "This week", icon: "◷" },
-            { href: `/month/${state.month}`, label: "This month", icon: "☾" },
+            { href: "/guides", label: "Guides", icon: "✦" },
           ].map((q) => (
             <Link key={q.href} href={q.href}>
               <motion.div

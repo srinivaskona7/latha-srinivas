@@ -439,3 +439,101 @@ export function systemFirstWeek(id: SystemId): number {
   }
   return 0;
 }
+
+/**
+ * Appearance & "imagination" profile for a gestational week, pure. Helps a
+ * mother picture exactly what her baby looks like right now and conjure a vivid,
+ * gentle mental image — grounded in fetal-development science. Each line is
+ * short and parent-facing.
+ */
+export interface AppearanceProfile {
+  /** Overall form/posture in one phrase. */
+  form: string;
+  /** Skin appearance and colour. */
+  skin: string;
+  /** Face & head features. */
+  face: string;
+  /** Hands, feet, fingers, nails. */
+  handsFeet: string;
+  /** Hair / lanugo / vernix details. */
+  hairVernix: string;
+  /** Proportions note (head-to-body etc.). */
+  proportions: string;
+  /** A vivid, imaginative one-paragraph scene the mother can picture. */
+  imagine: string;
+}
+
+export function appearanceProfile(week: number): AppearanceProfile {
+  const w = clamp(week, 1, 40);
+
+  if (w <= 8)
+    return {
+      form: "A curled, comma-shaped embryo with a large head and a tiny tail that is fading.",
+      skin: "Almost translucent and tinged pink, so the forming blood vessels show through.",
+      face: "Dark spots mark the eyes; the nose, mouth and tiny ear buds are just appearing.",
+      handsFeet: "Paddle-like hands and feet are forming, with webbed ridges that will become fingers and toes.",
+      hairVernix: "No hair yet — the skin is brand new and bare.",
+      proportions: "The head is almost half the body; the heart bulges large in the chest.",
+      imagine: "Picture a being smaller than a kidney bean, curled like a tiny seashell, with a heart already fluttering at a remarkable pace. Though no bigger than your thumbnail, every organ’s blueprint is being drawn this very week.",
+    };
+  if (w <= 12)
+    return {
+      form: "Recognisably human now — a tiny fetus with a rounded head and a straightening body.",
+      skin: "Thin and translucent, still pink, with blood vessels faintly visible beneath.",
+      face: "Eyes have moved to the front, eyelids are fused shut, and the profile — nose, lips, chin — is forming.",
+      handsFeet: "Separate fingers and toes, with soft nails beginning; the baby can open and close tiny fists.",
+      hairVernix: "The first downy lanugo follicles are just beginning under the skin.",
+      proportions: "The head is still large for the body as the limbs lengthen and catch up.",
+      imagine: "Imagine a delicate, fully-formed little person the size of a lime, stretching and bending in a sea of warm fluid, getting hiccups, and curling those brand-new fingers — all completely weightless and free.",
+    };
+  if (w <= 18)
+    return {
+      form: "A slender, active baby with limbs in proportion and a clear human profile.",
+      skin: "Thin, wrinkled and reddish, still see-through in places as fat hasn’t built up yet.",
+      face: "Features are refined — eyebrows and tiny eyelashes appear, and the ears sit in place to begin hearing.",
+      handsFeet: "Unique fingerprints and toe-prints are forming; the baby grasps, touches the face and sucks a thumb.",
+      hairVernix: "Fine lanugo hair covers the body; the first head hair may appear.",
+      proportions: "More balanced now, though the head is still relatively large.",
+      imagine: "Picture a banana-length baby turning somersaults you may just begin to feel — thumb in mouth, listening to the steady drum of your heartbeat, with fingerprints that are entirely, uniquely theirs.",
+    };
+  if (w <= 23)
+    return {
+      form: "A more filled-out baby with a defined face, busy in cycles of movement and rest.",
+      skin: "Red and wrinkled, becoming coated in creamy white vernix that protects it in the fluid.",
+      face: "The face looks newborn-like; eyes are formed (still fused or just opening) and respond to light.",
+      handsFeet: "Fingernails reach the fingertips; grip is stronger and movements are purposeful.",
+      hairVernix: "Lanugo and a waxy vernix coating cover the skin; hair, eyebrows and lashes are visible.",
+      proportions: "Head and body are coming into newborn-like balance.",
+      imagine: "Imagine a baby the size of an ear of corn, skin wrapped in a soft white coating, kicking in reply when you press your belly, startling at a sudden sound — already learning the rhythm of your voice.",
+    };
+  if (w <= 28)
+    return {
+      form: "A plumper baby, growing rounder as fat begins to smooth the skin.",
+      skin: "Still red and a little wrinkled but filling out; vernix and lanugo remain.",
+      face: "Eyes can open and close, with eyelashes; the face is fuller and very baby-like.",
+      handsFeet: "Strong grasp, fingernails fully formed; toes wriggle and fists clench.",
+      hairVernix: "Hair on the head grows; lanugo starts to thin in places.",
+      proportions: "Close to newborn proportions, just leaner.",
+      imagine: "Picture an aubergine-sized baby opening their eyes in the dim glow, hiccupping, dreaming in REM sleep, and turning toward the warm sound of your voice — fully tuned in to you.",
+    };
+  if (w <= 33)
+    return {
+      form: "A rounded, cosy baby settling toward a head-down position.",
+      skin: "Smoother and pinker as fat fills out beneath; fewer wrinkles each week.",
+      face: "Full cheeks, defined features, eyes that open during wakeful spells.",
+      handsFeet: "Nails may reach the fingertips; firm, deliberate kicks and stretches.",
+      hairVernix: "Head hair thickens; lanugo continues to shed; vernix still protects the skin.",
+      proportions: "Newborn-like, growing chubbier and stronger.",
+      imagine: "Imagine a pineapple-sized baby, soft and round, curled snugly head-down, practising breathing movements and tasting the sweetness of your meals through the fluid they swallow.",
+    };
+  return {
+    form: "A plump, full-term baby, curled and snug with little room to spare.",
+    skin: "Smooth, soft and pinkish; most vernix and lanugo have shed, leaving baby-soft skin.",
+    face: "Full, rounded face with chubby cheeks, defined nose and lips, and eyes that open and close.",
+    handsFeet: "Nails reach beyond the fingertips; a strong grasp and firm, confined movements.",
+    hairVernix: "A head of hair is common; only traces of vernix remain in the skin folds.",
+    proportions: "Newborn proportions — ready to be born.",
+    imagine: "Picture a watermelon-sized baby, plump and perfect, curled head-down and waiting — sucking a thumb, blinking, recognising your voice, and ready to open their eyes to your face for the very first time.",
+  };
+}
+

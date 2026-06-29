@@ -5,13 +5,14 @@ export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Today", icon: "✶" },
   { href: "/timeline", label: "Timeline", icon: "↔" },
   { href: "/explore", label: "3D Baby", icon: "◉" },
+  { href: "/imagine", label: "Imagine", icon: "💭" },
   { href: "/guides", label: "Guides", icon: "✦" },
-  { href: "/health", label: "Health", icon: "♡" },
   { href: "/journal", label: "Journal", icon: "✎" },
 ];
 
 /** Secondary links surfaced in the header menu / footer areas. */
 export const MORE_LINKS: NavLink[] = [
+  { href: "/health", label: "Health", icon: "♡" },
   { href: "/nutrition", label: "Nutrition", icon: "🍃" },
   { href: "/diet-plan", label: "Diet Plan", icon: "🍲" },
   { href: "/anc-visits", label: "ANC Visits", icon: "🩺" },
