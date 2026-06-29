@@ -61,28 +61,34 @@ function babyZoom(displayScale: number): number {
 /** Normalised hotspot positions (% of frame) for each anchor image, so taps on
  *  the actual photo land on the right organ. Only locatable systems are mapped. */
 type Point = { x: number; y: number };
-const HOTSPOTS: Record<string, Partial<Record<SystemId, Point>>> = {
-  "/fetus/week6.png": {
+// HOTSPOTS keys must match the imageSrc values returned by babyImageForWeek()
+// which include the BASE prefix — so we build them at runtime.
+const HOTSPOTS_RAW: Record<string, Partial<Record<SystemId, Point>>> = {
+  "week6": {
     brain: { x: 40, y: 26 }, heart: { x: 46, y: 50 }, lungs: { x: 43, y: 47 },
     digestive: { x: 50, y: 60 }, skeleton: { x: 48, y: 64 }, muscles: { x: 53, y: 70 },
     umbilicalCord: { x: 70, y: 55 }, placenta: { x: 85, y: 36 },
   },
-  "/fetus/week10.png": {
+  "week10": {
     brain: { x: 42, y: 25 }, heart: { x: 40, y: 52 }, lungs: { x: 43, y: 49 },
     digestive: { x: 40, y: 63 }, skeleton: { x: 46, y: 72 }, muscles: { x: 49, y: 74 },
     umbilicalCord: { x: 62, y: 60 }, placenta: { x: 84, y: 30 },
   },
-  "/fetus/week20.png": {
+  "week20": {
     brain: { x: 45, y: 27 }, heart: { x: 44, y: 50 }, lungs: { x: 46, y: 47 },
     digestive: { x: 47, y: 58 }, skeleton: { x: 50, y: 72 }, muscles: { x: 53, y: 66 },
     umbilicalCord: { x: 68, y: 44 }, placenta: { x: 22, y: 56 },
   },
-  "/fetus/week32.png": {
+  "week32": {
     brain: { x: 62, y: 27 }, heart: { x: 50, y: 48 }, lungs: { x: 52, y: 45 },
     digestive: { x: 48, y: 58 }, skeleton: { x: 40, y: 72 }, muscles: { x: 44, y: 64 },
     umbilicalCord: { x: 32, y: 30 }, placenta: { x: 80, y: 30 },
   },
 };
+function getHotspots(imageSrc: string): Partial<Record<SystemId, Point>> {
+  const key = imageSrc.replace(/.*\/(week\d+)\.png$/, "$1");
+  return HOTSPOTS_RAW[key] ?? {};
+}
 
 /** Stage description shown next to the image */
 function stageDescription(week: number): { title: string; desc: string } {
@@ -226,7 +232,7 @@ export function FetusViewer() {
             {/* Organ hotspots — pinned to the baby so they track zoom + motion */}
             {hotspotsOn &&
               VIEWER_SYSTEMS.map((s) => {
-                const pos = HOTSPOTS[imageSrc]?.[s];
+                const pos = getHotspots(imageSrc)?.[s];
                 if (!pos || !morph.present[s]) return null;
                 const isSel = selected === s;
                 return (
