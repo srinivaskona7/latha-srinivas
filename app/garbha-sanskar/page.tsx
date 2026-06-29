@@ -114,9 +114,9 @@ export default function GarbhaSanskarPage() {
             Garbha Sanskar
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-            India&apos;s traditional art of nurturing the baby in the womb, set
+            India’s traditional art of nurturing the baby in the womb, set
             beside what prenatal-bonding science actually supports. Keep the
-            calm, the music, the voices and the love &mdash; and hold the rest
+            calm, the music, the voices and the love — and hold the rest
             lightly. For your medical care, always follow your obstetrician.
           </p>
           <div className="mt-5 flex flex-wrap gap-2">

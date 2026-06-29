@@ -14,7 +14,7 @@ const GROUPS: Group[] = [
   {
     eyebrow: "Any trimester",
     title: "Bleeding & severe pain",
-    body: "Vaginal bleeding and severe abdominal pain are never &apos;normal&apos; in pregnancy. They can signal miscarriage, ectopic pregnancy, a low-lying placenta (placenta praevia), or placental separation (abruption). Do not wait to see if it settles — these need a doctor straight away.",
+    body: "Vaginal bleeding and severe abdominal pain are never ’normal’ in pregnancy. They can signal miscarriage, ectopic pregnancy, a low-lying placenta (placenta praevia), or placental separation (abruption). Do not wait to see if it settles — these need a doctor straight away.",
     signs: [
       "Vaginal bleeding — any amount, bright red or with clots, with or without pain.",
       "Severe or constant abdominal pain, or a tense, hard, painful tummy.",
@@ -35,12 +35,12 @@ const GROUPS: Group[] = [
   {
     eyebrow: "After ~28 weeks",
     title: "Reduced baby movements",
-    body: "From around 28 weeks, get to know your baby&apos;s usual pattern of movements. A clear drop, or movements stopping, can be the first sign the baby is unwell. Do a Daily Fetal Movement Count (DFMC): lie on your side and count kicks.",
+    body: "From around 28 weeks, get to know your baby’s usual pattern of movements. A clear drop, or movements stopping, can be the first sign the baby is unwell. Do a Daily Fetal Movement Count (DFMC): lie on your side and count kicks.",
     signs: [
       "Fewer than 10 movements in 2 hours after a meal — contact your doctor or go to the facility.",
-      "A noticeable reduction from your baby&apos;s normal pattern.",
+      "A noticeable reduction from your baby’s normal pattern.",
       "No movements at all — this is an emergency, go now.",
-      "Never wait until the next day to &apos;see&apos; — it is always better to get checked.",
+      "Never wait until the next day to ’see’ — it is always better to get checked.",
     ],
   },
   {
@@ -72,7 +72,7 @@ const GROUPS: Group[] = [
     signs: [
       "Regular tightenings or cramps, like period pain, that keep coming.",
       "Low, dull backache or a feeling of pressure in the pelvis.",
-      "A sudden increase or change in vaginal discharge, or a &apos;show&apos; of mucus.",
+      "A sudden increase or change in vaginal discharge, or a ’show’ of mucus.",
       "Leaking fluid or bleeding before 37 weeks.",
     ],
   },
@@ -108,7 +108,7 @@ export default function WarningSignsPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">Trust your instincts</p>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Warning signs</h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-            Most pregnancies are healthy, but knowing the danger signs can save your life and your baby&apos;s. If
+            Most pregnancies are healthy, but knowing the danger signs can save your life and your baby’s. If
             something feels wrong, trust your instincts and seek help early — it is always better to be checked and
             reassured. In India, dial <span className="font-semibold text-terracotta">108</span> for a free ambulance,
             or go straight to the nearest hospital or call your obstetrician.

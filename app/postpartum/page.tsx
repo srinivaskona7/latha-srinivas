@@ -91,7 +91,7 @@ export default function PostpartumPage() {
       <SectionReveal>
         <header className="mb-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">The fourth trimester</p>
-          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Postpartum &amp; newborn</h1>
+          <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Postpartum & newborn</h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
             The weeks after birth, the time of jaapa in many Indian homes, are for healing, feeding and bonding. Here is supportive, evidence-based guidance that honours tradition while keeping you and your baby safe.
           </p>

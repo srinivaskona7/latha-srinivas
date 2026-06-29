@@ -115,13 +115,13 @@ export default function ConcernsPage() {
     <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
       <SectionReveal>
         <header className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">Know &amp; screen early</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">Know & screen early</p>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Common concerns</h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-            A few conditions are notably common in pregnancy in India &mdash; anaemia, gestational diabetes, thyroid and
-            vitamin&nbsp;D issues among them. The good news: most are picked up by simple, routine antenatal screening and
-            managed well. This page explains what each one is, why it matters here, what to look out for, and how it&apos;s
-            usually checked &mdash; so you can attend your visits informed and reassured, not anxious.
+            A few conditions are notably common in pregnancy in India — anaemia, gestational diabetes, thyroid and
+            vitamin D issues among them. The good news: most are picked up by simple, routine antenatal screening and
+            managed well. This page explains what each one is, why it matters here, what to look out for, and how it’s
+            usually checked — so you can attend your visits informed and reassured, not anxious.
           </p>
         </header>
       </SectionReveal>

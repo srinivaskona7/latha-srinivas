@@ -119,7 +119,7 @@ export default function HospitalBagPage() {
       </div>
       <SectionReveal delay={0.15}>
         <p className="mt-8 text-center text-xs leading-relaxed text-muted">
-          Always adapt this list to your hospital&apos;s own instructions and your obstetrician&apos;s advice. This page
+          Always adapt this list to your hospital’s own instructions and your obstetrician’s advice. This page
           is for general education only and is not medical advice. In India, dial 108 for emergency ambulance services.
         </p>
       </SectionReveal>

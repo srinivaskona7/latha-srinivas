@@ -111,7 +111,7 @@ export default function DietPlanPage() {
         <header className="mb-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">Eating for two, the Indian way</p>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Indian diet plan</h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">A trimester-by-trimester guide built around real Indian foods &mdash; everyday dals, sabzis, millets, curd and thalis &mdash; with vegetarian and non-vegetarian options, plus the national folic-acid, IFA and calcium guidance that supports a healthy pregnancy.</p>
+          <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">A trimester-by-trimester guide built around real Indian foods — everyday dals, sabzis, millets, curd and thalis — with vegetarian and non-vegetarian options, plus the national folic-acid, IFA and calcium guidance that supports a healthy pregnancy.</p>
         </header>
       </SectionReveal>
       <div className="space-y-6">
@@ -133,7 +133,7 @@ export default function DietPlanPage() {
         ))}
       </div>
       <SectionReveal delay={0.15}>
-        <p className="mt-8 text-center text-xs leading-relaxed text-muted">This page is for education only and is not medical or dietary advice. Every pregnancy is different &mdash; follow your obstetrician&apos;s and dietitian&apos;s guidance and national IFA and calcium supplementation programmes for your iron, folic-acid and calcium needs. In an emergency in India, dial 108.</p>
+        <p className="mt-8 text-center text-xs leading-relaxed text-muted">This page is for education only and is not medical or dietary advice. Every pregnancy is different — follow your obstetrician’s and dietitian’s guidance and national IFA and calcium supplementation programmes for your iron, folic-acid and calcium needs. In an emergency in India, dial 108.</p>
       </SectionReveal>
     </main>
   );

@@ -56,7 +56,7 @@ const VISITS: Visit[] = [
     body:
       "As the third trimester begins, visits look closely at the baby's growth and position and at your own wellbeing, watching carefully for signs of pre-eclampsia and anaemia.",
     checks: [
-      "Weight, blood pressure, fundal height and abdominal palpation to assess growth and the baby&apos;s lie and position",
+      "Weight, blood pressure, fundal height and abdominal palpation to assess growth and the baby’s lie and position",
       "Fetal heart rate and, where indicated, fetal movement counting guidance",
       "Repeat haemoglobin to detect anaemia; urine for protein (a marker of pre-eclampsia)",
       "Third Td/TT dose if the schedule was started late; continued IFA and calcium",
@@ -123,7 +123,7 @@ export default function AncVisitsPage() {
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
             Antenatal care (ANC) is the regular set of check-ups that keep you
             and your baby well through pregnancy. In India, the MoHFW has
-            historically recommended a minimum of 4 visits, while the WHO&apos;s
+            historically recommended a minimum of 4 visits, while the WHO’s
             2016 guidance recommends 8 contacts for better outcomes. Through the
             PMSMA scheme, free specialist check-ups are offered on the 9th of
             every month for women in their 2nd and 3rd trimesters. Here is what a

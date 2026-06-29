@@ -14,7 +14,7 @@ const MATERNAL: Milestone[] = [
   {
     eyebrow: "Tetanus protection",
     title: "Td / Tdap (tetanus–diphtheria)",
-    note: "India&apos;s Universal Immunization Programme switched from plain TT (tetanus toxoid) to Td, which adds a diphtheria component for the mother. Td is the routine antenatal vaccine offered free at government facilities.",
+    note: "India’s Universal Immunization Programme switched from plain TT (tetanus toxoid) to Td, which adds a diphtheria component for the mother. Td is the routine antenatal vaccine offered free at government facilities.",
     items: [
       "If never immunised before: 2 doses of Td given 4 weeks apart during pregnancy (typically the early dose around the first antenatal visit, the second about a month later).",
       "If immunised in a previous pregnancy within the last 3 years: a single Td booster dose is usually sufficient.",
@@ -118,8 +118,8 @@ export default function VaccinationsPage() {
             Vaccinations
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-            A clear guide to maternal vaccines in pregnancy and your baby&apos;s
-            immunisation schedule under India&apos;s Universal Immunization
+            A clear guide to maternal vaccines in pregnancy and your baby’s
+            immunisation schedule under India’s Universal Immunization
             Programme (UIP). It draws on MoHFW guidance and the recommendations
             of IAP (Indian Academy of Pediatrics) and FOGSI. Government
             facilities provide the UIP vaccines free of cost.
@@ -194,8 +194,8 @@ export default function VaccinationsPage() {
           <ul className="mt-4 space-y-2">
             {[
               "IAP recommends additional vaccines that are not part of the free UIP and are available in the private sector — for example influenza for infants, hepatitis A, varicella (chickenpox), typhoid conjugate, and MMR.",
-              "Some optional vaccines (such as additional pneumococcal or meningococcal options) may be advised based on the child&apos;s risk and your paediatrician&apos;s judgement.",
-              "Carry and update the baby&apos;s Mother and Child Protection (MCP) card / immunisation card at every visit so the record stays complete.",
+              "Some optional vaccines (such as additional pneumococcal or meningococcal options) may be advised based on the child’s risk and your paediatrician’s judgement.",
+              "Carry and update the baby’s Mother and Child Protection (MCP) card / immunisation card at every visit so the record stays complete.",
             ].map((it) => (
               <li
                 key={it}
@@ -213,7 +213,7 @@ export default function VaccinationsPage() {
         <p className="mt-8 text-center text-xs leading-relaxed text-muted">
           Schedules can be updated by MoHFW / IAP from time to time. Always
           confirm the exact vaccines and timing with your paediatrician and the
-          baby&apos;s MCP / immunisation card. This page is for education only
+          baby’s MCP / immunisation card. This page is for education only
           and is not medical advice. For emergencies in India, dial 108.
         </p>
       </SectionReveal>

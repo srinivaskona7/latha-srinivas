@@ -16,11 +16,11 @@ const SCHEMES: Scheme[] = [
     eyebrow: "Cash incentive · first living child",
     title: "Pradhan Mantri Matru Vandana Yojana (PMMVY)",
     tag: "Cash benefit",
-    body: "PMMVY is a centrally-sponsored maternity benefit scheme that gives a conditional cash incentive to pregnant women and lactating mothers, paid directly into the beneficiary&apos;s bank or post-office account to partly compensate for wage loss and support better health and nutrition before and after delivery.",
+    body: "PMMVY is a centrally-sponsored maternity benefit scheme that gives a conditional cash incentive to pregnant women and lactating mothers, paid directly into the beneficiary’s bank or post-office account to partly compensate for wage loss and support better health and nutrition before and after delivery.",
     points: [
-      "For the first living child, the benefit is paid in instalments on meeting conditions such as registering the pregnancy at an Anganwadi/health facility, receiving at least one antenatal check-up (ANC), and registering the child&apos;s birth and first cycle of immunisation.",
-      "Under the revised Mission Shakti framework, an additional benefit is provided for a second child only if the second child is a girl — paid after birth registration and completion of the child&apos;s immunisation, to encourage the birth of the girl child and discourage sex-selection.",
-      "You typically need Aadhaar (mother and husband), a bank/post-office account in the mother&apos;s name, and the Mother & Child Protection (MCP) card to enrol.",
+      "For the first living child, the benefit is paid in instalments on meeting conditions such as registering the pregnancy at an Anganwadi/health facility, receiving at least one antenatal check-up (ANC), and registering the child’s birth and first cycle of immunisation.",
+      "Under the revised Mission Shakti framework, an additional benefit is provided for a second child only if the second child is a girl — paid after birth registration and completion of the child’s immunisation, to encourage the birth of the girl child and discourage sex-selection.",
+      "You typically need Aadhaar (mother and husband), a bank/post-office account in the mother’s name, and the Mother & Child Protection (MCP) card to enrol.",
       "Enrol through the Anganwadi centre or your ASHA/ANM worker; registration is also done via the PMMVY portal / Poshan Tracker. Exact instalment amounts and conditions are revised over time.",
     ],
   },
@@ -89,7 +89,7 @@ const SCHEMES: Scheme[] = [
     body: "The MCP card (also called the Mother and Child Protection card) is a free record book issued to track the health of the mother and child from pregnancy through early childhood, and is often required to claim benefits.",
     points: [
       "It records antenatal check-ups, weight, blood pressure, blood and other tests, IFA tablets, tetanus protection and danger signs to watch for.",
-      "After birth it tracks the baby&apos;s immunisation schedule, growth and developmental milestones.",
+      "After birth it tracks the baby’s immunisation schedule, growth and developmental milestones.",
       "It is commonly required as proof of pregnancy registration and ANC for schemes like PMMVY — keep it safe and carry it to every visit.",
       "You receive it free of cost when you register your pregnancy at the Anganwadi or health facility.",
     ],
@@ -115,14 +115,14 @@ const SCHEMES: Scheme[] = [
       "Paid maternity leave was increased to 26 weeks for the first two children (12 weeks for the third child onwards), with leave for commissioning and adopting mothers as specified in the Act.",
       "Employers with 50 or more employees must provide a crèche facility, and the mother is allowed visits to the crèche during the day.",
       "Employers must inform every woman of her maternity benefits in writing at the time of appointment, and an option of work-from-home may be allowed where the nature of work permits.",
-      "This is a labour-law entitlement separate from the health and cash schemes above; for disputes consult your employer&apos;s HR or the labour authorities, not your ASHA.",
+      "This is a labour-law entitlement separate from the health and cash schemes above; for disputes consult your employer’s HR or the labour authorities, not your ASHA.",
     ],
   },
   {
     eyebrow: "Newborn & child screening",
     title: "Rashtriya Bal Swasthya Karyakram (RBSK)",
     tag: "Child health",
-    body: "RBSK is a child health screening and early-intervention programme covering children from birth up to 18 years, with a strong focus on screening newborns and young children for the &quot;4 Ds&quot; — Defects at birth, Diseases, Deficiencies and Developmental delays including disability.",
+    body: "RBSK is a child health screening and early-intervention programme covering children from birth up to 18 years, with a strong focus on screening newborns and young children for the “4 Ds” — Defects at birth, Diseases, Deficiencies and Developmental delays including disability.",
     points: [
       "Newborns are screened at the delivery point (facility-based) for birth defects and conditions, and follow-up screening continues at Anganwadi and school level.",
       "Children identified with a condition are referred for free further evaluation and management, including through District Early Intervention Centres (DEICs).",
@@ -136,7 +136,7 @@ const SCHEMES: Scheme[] = [
     body: "Enrolling early helps you claim the maximum benefits, since several entitlements depend on registering the pregnancy in the first trimester and attending check-ups on time.",
     points: [
       "Register your pregnancy as early as possible with your ASHA/ANM, at the nearest Anganwadi centre, or at a government sub-centre / PHC — this triggers your MCP card and scheme eligibility.",
-      "Keep ready: Aadhaar (and husband&apos;s, where required), a bank or post-office account in the mother&apos;s name, the MCP card, and your mobile number.",
+      "Keep ready: Aadhaar (and husband’s, where required), a bank or post-office account in the mother’s name, the MCP card, and your mobile number.",
       "Some schemes (such as PMMVY) can also be registered online through the official PMMVY portal / Poshan Tracker, often with help from the Anganwadi worker.",
       "If unsure which schemes you qualify for, ask your ASHA, ANM, or Anganwadi worker — they can check eligibility and complete the paperwork with you.",
     ],
@@ -151,7 +151,7 @@ export default function SchemesPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">Support you are entitled to</p>
           <h1 className="mt-2 font-display text-4xl font-semibold tracking-tight text-plum sm:text-5xl">Government schemes</h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted">
-            India runs several government schemes that support you through pregnancy, delivery and your baby&apos;s early
+            India runs several government schemes that support you through pregnancy, delivery and your baby’s early
             months — from free care and cash incentives to nutrition, frontline health workers and paid leave. This
             page summarises the main national maternity benefits and how to claim them, so you can ask the right
             questions to your local ASHA, ANM or Anganwadi worker.
