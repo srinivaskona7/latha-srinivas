@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PARTNER } from "@/lib/content";
 import { GlassCard, SectionTitle } from "@/components/ui";
 import { SectionReveal } from "@/components/common/SectionReveal";
@@ -7,6 +8,21 @@ export const metadata = { title: "Partner Support — Baby Journey" };
 export default function PartnerPage() {
   return (
     <main className="mx-auto w-full max-w-4xl px-5 py-12 sm:px-8 sm:py-16">
+      {/* COUPLE BANNER */}
+      <SectionReveal>
+        <div className="relative mb-8 h-64 w-full overflow-hidden rounded-4xl border border-peach/15 shadow-sm">
+          <Image
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+            alt="Srinivas & Latha"
+            fill
+            sizes="(min-width: 1024px) 896px, 100vw"
+            priority
+            className="object-cover"
+            style={{ objectPosition: "50% 28%" }}
+          />
+        </div>
+      </SectionReveal>
+
       <SectionReveal>
         <header className="mb-10">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">

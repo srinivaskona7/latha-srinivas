@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -43,6 +44,41 @@ export function TodayView() {
 
   return (
     <div className="space-y-6">
+      {/* WELCOME BANNER */}
+      <SectionReveal>
+        <div className="relative overflow-hidden rounded-4xl bg-linen/50 p-6 border border-peach/15 flex flex-col md:flex-row items-center gap-6 shadow-sm">
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-peach/30 shadow-md">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+              alt="Srinivas & Latha"
+              fill
+              sizes="80px"
+              className="object-cover animate-gentle-pan"
+              priority
+            />
+          </div>
+          <div className="flex-1 text-center md:text-left space-y-1">
+            <h2 className="font-display text-2xl font-semibold text-plum">
+              Srinivas &amp; Latha&apos;s Baby Journey
+            </h2>
+            <p className="text-sm text-muted">
+              Celebrating your pregnancy together. Documenting and exploring each beautiful milestone.
+            </p>
+            <div className="pt-2 flex justify-center md:justify-start gap-3">
+              <a
+                href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+                download="Srinivas-Latha-Couple.jpg"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full bg-peach/10 px-3.5 py-1.5 text-xs font-semibold text-terracotta transition hover:bg-peach/25 shadow-sm"
+              >
+                <span>📥</span> Download Latest Pic
+              </a>
+            </div>
+          </div>
+        </div>
+      </SectionReveal>
+
       {/* HERO */}
       <SectionReveal>
         <GlassCard className="overflow-hidden">

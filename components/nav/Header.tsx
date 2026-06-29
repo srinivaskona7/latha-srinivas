@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import { useState } from "react";
 import { NAV_LINKS, MORE_LINKS } from "./links";
 import { ThemeToggle } from "./ThemeToggle";
@@ -16,9 +17,16 @@ export function Header() {
     <header className="no-print sticky top-0 z-40 mx-auto mt-3 w-full max-w-6xl px-4 sm:px-6">
       <div className="glass flex items-center justify-between gap-3 rounded-full px-4 py-2 shadow-glass">
         <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-peach/20 text-peach">
-            <span aria-hidden className="animate-floaty text-lg">✶</span>
-          </span>
+          <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-peach/30 shadow-sm">
+            <Image
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+              alt="Srinivas & Latha Logo"
+              fill
+              sizes="36px"
+              className="object-cover"
+              priority
+            />
+          </div>
           <span className="font-display text-lg font-semibold tracking-tight text-plum">
             Baby&nbsp;Journey
           </span>
