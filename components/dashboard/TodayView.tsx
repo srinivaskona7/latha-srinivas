@@ -7,6 +7,7 @@ import {
   getPregnancyState,
   istTodayISO,
   formatLongDate,
+  formatWeekdayLong,
   TERM_DAYS,
 } from "@/lib/pregnancy";
 import { deriveDay, formatLength, formatWeight } from "@/lib/derive";
@@ -52,6 +53,12 @@ export function TodayView() {
                 <Badge tone="sage">Month {state.month}</Badge>
                 <Badge tone="plum">Day {state.dayOfPregnancy} of {TERM_DAYS}</Badge>
               </div>
+              <p className="flex items-center gap-2 text-sm font-medium text-muted">
+                <span aria-hidden>📅</span>
+                <span>
+                  Today is <span className="text-ink">{formatWeekdayLong(todayISO)}</span>
+                </span>
+              </p>
               <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight text-plum sm:text-6xl">
                 {state.gaWeeks} weeks{" "}
                 <span className="text-terracotta">{state.gaDays} days</span>

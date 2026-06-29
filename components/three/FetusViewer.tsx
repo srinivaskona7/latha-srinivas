@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   getMorphology,
   heartRateBpm,
+  movementProfile,
   sizeComparison,
   systemFirstWeek,
   VIEWER_SYSTEMS,
@@ -131,6 +132,12 @@ export function FetusViewer() {
   const [soundOn, setSoundOn] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
+  // Growth time-lapse ("play the pregnancy as a film")
+  const [playing, setPlaying] = useState(false);
+  // Kick ripples — transient rings spawned on the baby, like a live scan
+  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; size: number }>>([]);
+  const rippleSeq = useRef(0);
+
   useEffect(() => {
     const iso = istTodayISO();
     setTodayISO(iso);
@@ -161,6 +168,7 @@ export function FetusViewer() {
   const bpm = heartRateBpm(morph.week);
   const beatSec = bpm > 0 ? 60 / bpm : 0;
   const size = sizeComparison(morph.week);
+  const move = movementProfile(morph.week);
 
   // Animate image transition when week-stage changes
   useEffect(() => {
@@ -191,6 +199,55 @@ export function FetusViewer() {
   // Release the audio context on unmount.
   useEffect(() => () => { void audioCtxRef.current?.close(); }, []);
 
+  // Growth time-lapse: auto-advance the day so the whole pregnancy plays out
+  // as a ~10s film (≈28 days/sec). Stops at term; restart replays from day 1.
+  useEffect(() => {
+    if (!playing) return;
+    const id = window.setInterval(() => {
+      setDay((d) => {
+        const next = d + 2;
+        if (next >= 280) {
+          setPlaying(false);
+          return 280;
+        }
+        return next;
+      });
+    }, 70);
+    return () => window.clearInterval(id);
+  }, [playing]);
+
+  const togglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    setFollowToday(false);
+    if (day >= 280) setDay(1); // replay from the beginning
+    setPlaying(true);
+  };
+
+  // Kick ripples: from quickening onward, spawn soft expanding rings on the
+  // baby at a cadence and size set by the week's movement profile.
+  useEffect(() => {
+    if (!motionOn || !move.feltByMother) return;
+    if (typeof window !== "undefined" &&
+        window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+
+    const gapMs = move.periodSec * (playing ? 600 : 1000);
+    const id = window.setInterval(() => {
+      const rid = rippleSeq.current++;
+      const ripple = {
+        id: rid,
+        x: 38 + Math.random() * 26, // % within the torso region
+        y: 36 + Math.random() * 24,
+        size: 48 + move.amplitudePx * 3 + Math.random() * 30,
+      };
+      setRipples((r) => [...r, ripple]);
+      window.setTimeout(() => setRipples((r) => r.filter((p) => p.id !== rid)), 1800);
+    }, gapMs);
+    return () => window.clearInterval(id);
+  }, [motionOn, move.feltByMother, move.periodSec, move.amplitudePx, playing]);
+
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
       {/* === PHOTOREALISTIC BABY VIEW === */}
@@ -210,10 +267,21 @@ export function FetusViewer() {
             transition: "transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
           }}
         >
-          {/* Idle-motion layer — gentle breathing/float so the baby feels alive */}
+          {/* Idle-motion layer — week-aware movement so the baby moves the way
+              it actually does at this stage (flickers → kicks → confined rolls). */}
           <div
             className="absolute inset-0"
-            style={motionOn ? { animation: "baby-float 7s ease-in-out infinite" } : undefined}
+            style={
+              motionOn
+                ? ({
+                    animation: `baby-move ${move.periodSec}s ease-in-out infinite`,
+                    ["--mv-amp" as string]: `${move.amplitudePx}px`,
+                    ["--mv-amp-neg" as string]: `${-move.amplitudePx}px`,
+                    ["--mv-rot" as string]: `${move.rotateDeg}deg`,
+                    ["--mv-rot-neg" as string]: `${-move.rotateDeg}deg`,
+                  } as CSSProperties)
+                : undefined
+            }
           >
             <Image
               src={imageSrc}
@@ -286,6 +354,25 @@ export function FetusViewer() {
           style={{ boxShadow: "inset 0 0 90px 20px rgba(10,2,1,0.55)" }}
         />
 
+        {/* Kick ripples — transient rings, like movement seen on a live scan */}
+        <div className="pointer-events-none absolute inset-0 z-[15]">
+          {ripples.map((r) => (
+            <span
+              key={r.id}
+              className="absolute block rounded-full"
+              style={{
+                left: `${r.x}%`,
+                top: `${r.y}%`,
+                width: r.size,
+                height: r.size,
+                border: "2px solid rgba(255,200,140,0.55)",
+                boxShadow: "0 0 18px rgba(255,170,90,0.35)",
+                animation: "ripple-kick 1.8s ease-out forwards",
+              }}
+            />
+          ))}
+        </div>
+
         {/* Loading placeholder */}
         {!imageLoaded && (
           <div className="absolute inset-0 z-30 flex items-center justify-center">
@@ -349,6 +436,21 @@ export function FetusViewer() {
           <p className="font-display text-lg font-bold" style={{ color: "#FFD4A8" }}>{stageTitle}</p>
           <p className="mt-1 text-sm leading-relaxed" style={{ color: "rgba(255,200,150,0.75)" }}>{stageDesc}</p>
         </div>
+
+        {/* Time-lapse play/pause — bottom-right */}
+        <button
+          onClick={togglePlay}
+          aria-pressed={playing}
+          title={playing ? "Pause growth film" : "Play growth film"}
+          className="absolute bottom-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full text-lg shadow-lg backdrop-blur-sm transition-transform hover:scale-105"
+          style={{
+            background: "rgba(255,150,60,0.92)",
+            color: "#1a0503",
+            border: "1px solid rgba(255,200,150,0.6)",
+          }}
+        >
+          {playing ? "⏸" : "▶"}
+        </button>
       </div>
 
       {/* === CONTROLS + INFO === */}
@@ -366,12 +468,20 @@ export function FetusViewer() {
             aria-label="Day of pregnancy"
           />
           <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              onClick={togglePlay}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                playing ? "bg-plum text-white" : "bg-terracotta text-white hover:opacity-90"
+              }`}
+            >
+              {playing ? "⏸ Pause" : "▶ Play growth"}
+            </button>
             <button onClick={() => setDayClamped(day - 7)}
               className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">−7d</button>
             <button onClick={() => setDayClamped(day + 7)}
               className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">+7d</button>
             <button
-              onClick={() => { setFollowToday(true); setDay(todayDay); }}
+              onClick={() => { setPlaying(false); setFollowToday(true); setDay(todayDay); }}
               className={`rounded-full px-3 py-1 text-xs font-medium ${followToday ? "bg-terracotta text-white" : "bg-linen text-muted hover:text-ink"}`}>
               Today ({todayDay})
             </button>
@@ -379,7 +489,7 @@ export function FetusViewer() {
               className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">Birth</button>
           </div>
           <p className="mt-2 text-xs text-muted">
-            Drag to see how your baby looks at every stage of pregnancy.
+            Drag to scrub, or press <span className="font-medium text-ink">Play growth</span> to watch your baby develop from day 1 to birth.
           </p>
         </div>
 
@@ -443,6 +553,38 @@ export function FetusViewer() {
           )}
         </div>
 
+        {/* Movements & moments this week */}
+        <div className="glass rounded-4xl p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg font-semibold text-plum">Movements this week</h3>
+            <span
+              className="rounded-full px-2.5 py-1 text-[11px] font-medium"
+              style={
+                move.feltByMother
+                  ? { background: "rgb(var(--terracotta) / 0.14)", color: "rgb(var(--terracotta))" }
+                  : { background: "rgba(0,0,0,0.05)", color: "rgb(var(--muted))" }
+              }
+            >
+              {move.feltByMother ? "You can feel this" : "Too small to feel"}
+            </span>
+          </div>
+          <p className="mt-2 font-display text-xl font-semibold text-terracotta">{move.title}</p>
+          <p className="mt-1 text-sm leading-relaxed text-muted">{move.desc}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {move.motions.map((m) => (
+              <span
+                key={m}
+                className="rounded-full bg-linen px-3 py-1 text-xs font-medium text-ink"
+              >
+                {m}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted">
+            The baby in the view moves the way it does around week {morph.week}. Turn ✷ Motion on to watch.
+          </p>
+        </div>
+
         {/* System selector + organ hotspots */}
         <div className="glass rounded-4xl p-5">
           <div className="flex items-center justify-between">
@@ -498,9 +640,13 @@ export function FetusViewer() {
           0%, 100% { opacity: 0.6; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.04); }
         }
-        @keyframes baby-float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-7px) rotate(0.5deg); }
+        @keyframes baby-move {
+          0%   { transform: translate(0, 0) rotate(0deg); }
+          20%  { transform: translate(calc(var(--mv-amp) * 0.4), var(--mv-amp-neg)) rotate(var(--mv-rot)); }
+          40%  { transform: translate(var(--mv-amp-neg), calc(var(--mv-amp) * 0.3)) rotate(var(--mv-rot-neg)); }
+          60%  { transform: translate(calc(var(--mv-amp) * 0.5), calc(var(--mv-amp) * 0.2)) rotate(var(--mv-rot)); }
+          80%  { transform: translate(calc(var(--mv-amp-neg) * 0.3), var(--mv-amp-neg)) rotate(var(--mv-rot-neg)); }
+          100% { transform: translate(0, 0) rotate(0deg); }
         }
         @keyframes heartbeat {
           0%, 100% { transform: scale(1); }
@@ -513,8 +659,12 @@ export function FetusViewer() {
           0% { transform: translate(-50%,-50%) scale(1); opacity: 0.8; }
           100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
         }
+        @keyframes ripple-kick {
+          0% { transform: translate(-50%,-50%) scale(0.25); opacity: 0.6; }
+          100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          [style*="baby-float"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"] {
+          [style*="baby-move"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"] {
             animation: none !important;
           }
         }

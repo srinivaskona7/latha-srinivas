@@ -107,6 +107,124 @@ export function sizeComparison(week: number): SizeComparison {
   return SIZE_TABLE[w] ?? SIZE_TABLE[4];
 }
 
+/**
+ * Week-wise movement profile, pure. Describes the real motions a baby performs
+ * at a given stage and the visual parameters used to animate them, so the
+ * viewer's idle motion reflects *that week's* behaviour instead of a generic
+ * float. Intensity ramps from imperceptible early flickers to strong, confined
+ * kicks near term (when there's little room left to move).
+ */
+export interface MovementProfile {
+  /** Headline motion for the stage, e.g. "First flutters". */
+  title: string;
+  /** One-line, parent-facing description of what's happening. */
+  desc: string;
+  /** Specific motions happening this week (chips). */
+  motions: string[];
+  /** Float travel in px for the idle animation (bigger = roomier movement). */
+  amplitudePx: number;
+  /** Sway rotation in degrees for the idle animation. */
+  rotateDeg: number;
+  /** Full motion-cycle duration in seconds (smaller = quicker, busier). */
+  periodSec: number;
+  /** Whether the baby is felt by the mother yet (quickening ~wk16–22). */
+  feltByMother: boolean;
+}
+
+export function movementProfile(week: number): MovementProfile {
+  const w = clamp(week, 1, 40);
+
+  if (w < 7)
+    return {
+      title: "Stillness",
+      desc: "Far too small to move — cells are dividing and the body plan is being laid down.",
+      motions: ["Cell division", "Neural tube closing"],
+      amplitudePx: 2,
+      rotateDeg: 0.2,
+      periodSec: 9,
+      feltByMother: false,
+    };
+  if (w <= 9)
+    return {
+      title: "First flickers",
+      desc: "The earliest spontaneous twitches begin as the spinal cord wires up — invisible from outside.",
+      motions: ["Tiny twitches", "Startle flickers"],
+      amplitudePx: 5,
+      rotateDeg: 0.8,
+      periodSec: 6,
+      feltByMother: false,
+    };
+  if (w <= 12)
+    return {
+      title: "Wriggles & bends",
+      desc: "Baby bends, hiccups, and curls — moving freely in the roomy sac, though still unfelt.",
+      motions: ["Bending", "Hiccups", "Hand-to-face"],
+      amplitudePx: 9,
+      rotateDeg: 1.6,
+      periodSec: 5,
+      feltByMother: false,
+    };
+  if (w <= 15)
+    return {
+      title: "Stretches & swims",
+      desc: "Stronger, more coordinated stretches and 'swimming' movements through the fluid.",
+      motions: ["Stretching", "Swimming", "Yawning", "Thumb sucking"],
+      amplitudePx: 12,
+      rotateDeg: 2.2,
+      periodSec: 5,
+      feltByMother: false,
+    };
+  if (w <= 22)
+    return {
+      title: "Quickening",
+      desc: "The first flutters you can feel — light 'butterfly' taps as kicks grow stronger.",
+      motions: ["First kicks", "Flutters", "Rolling", "Hiccups"],
+      amplitudePx: 14,
+      rotateDeg: 2.6,
+      periodSec: 4.5,
+      feltByMother: true,
+    };
+  if (w <= 27)
+    return {
+      title: "Kicks & rolls",
+      desc: "Clear, regular kicks, jabs and rolls — you may notice a daily rhythm of activity.",
+      motions: ["Strong kicks", "Jabs", "Rolling", "Responds to sound"],
+      amplitudePx: 16,
+      rotateDeg: 3,
+      periodSec: 4,
+      feltByMother: true,
+    };
+  if (w <= 32)
+    return {
+      title: "Big movements",
+      desc: "Powerful kicks and stretches, startle reflexes, and visible belly ripples.",
+      motions: ["Powerful kicks", "Stretching", "Startles", "Practice breathing"],
+      amplitudePx: 18,
+      rotateDeg: 3.2,
+      periodSec: 3.6,
+      feltByMother: true,
+    };
+  if (w <= 36)
+    return {
+      title: "Squirms & jabs",
+      desc: "Less tumbling now — more squirms, jabs and pokes as space gets tight.",
+      motions: ["Squirming", "Jabs & pokes", "Hiccups", "Grasping"],
+      amplitudePx: 12,
+      rotateDeg: 2,
+      periodSec: 4,
+      feltByMother: true,
+    };
+  return {
+    title: "Confined & strong",
+    desc: "Snug and curled — movements are strong but small, mostly stretches, rolls and hiccups.",
+    motions: ["Strong stretches", "Slow rolls", "Hiccups", "Presses & pushes"],
+    amplitudePx: 8,
+    rotateDeg: 1.4,
+    periodSec: 4.5,
+    feltByMother: true,
+  };
+}
+
 /** Numeric growth curve for a gestational week (pure — no data dependency). */
 export interface GrowthParams {
   /** Overall scene scale (compressive map of real length). */

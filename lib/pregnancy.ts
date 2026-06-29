@@ -161,3 +161,15 @@ export function formatLongDate(iso: string): string {
     timeZone: "UTC",
   }).format(Date.UTC(y, m - 1, d));
 }
+
+/** Long date including the weekday, e.g. "Monday, 29 June 2026". */
+export function formatWeekdayLong(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(Date.UTC(y, m - 1, d));
+}
