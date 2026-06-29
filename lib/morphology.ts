@@ -225,6 +225,103 @@ export function movementProfile(week: number): MovementProfile {
   };
 }
 
+/**
+ * "Inside your womb right now" — a rich, week-specific snapshot of what the
+ * baby is sensing and doing, and the womb environment around them. Pure data,
+ * grounded in fetal-development science, so the mother understands her baby's
+ * lived experience at this exact stage. Each field is a short, parent-facing line.
+ */
+export interface WombInsight {
+  /** Can the baby hear / respond to sound yet, and what. */
+  hearing: string;
+  /** Sight / light perception. */
+  vision: string;
+  /** Taste & smell via amniotic fluid. */
+  tasteSmell: string;
+  /** Touch & what the baby is doing with its hands/body. */
+  touch: string;
+  /** Sleep, wake and behaviour patterns. */
+  behaviour: string;
+  /** The womb environment: fluid, sound, light, warmth, space. */
+  environment: string;
+  /** One thing the mother can do now to connect. */
+  connection: string;
+}
+
+export function wombInsight(week: number): WombInsight {
+  const w = clamp(week, 1, 40);
+
+  if (w <= 8)
+    return {
+      hearing: "The inner ear is just forming — your baby cannot hear yet, but the structures that will one day carry your voice are taking shape.",
+      vision: "Eyes are forming as dark spots; the optic nerve and retina are being laid down. There is nothing to see in the dark womb yet.",
+      tasteSmell: "Taste buds are beginning to form on the tongue, though they aren't working yet.",
+      touch: "The first touch receptors appear around the mouth — the earliest sense to develop.",
+      behaviour: "Tiny spontaneous movements begin, far too small for you to feel, as the spinal cord wires up.",
+      environment: "Your baby floats in warm amniotic fluid inside the sac, fully cushioned and fed through the forming umbilical cord and placenta.",
+      connection: "Rest, hydrate and take your folic acid — the most powerful thing right now is your own well-being as the brain and spine form.",
+    };
+  if (w <= 13)
+    return {
+      hearing: "Ears are moving toward their final position on the head, but hearing has not started — the world is still silent to your baby.",
+      vision: "Eyelids have formed and are fused shut, gently protecting the developing eyes.",
+      tasteSmell: "Your baby has begun to swallow small amounts of amniotic fluid, the first practice for taste and digestion.",
+      touch: "Touch sensitivity is spreading across the body; your baby can curl fingers, bend, and even get hiccups.",
+      behaviour: "Lots of wriggling, stretching and bending in the roomy sac — still too gentle for you to feel.",
+      environment: "The placenta is now your baby's lifeline, exchanging oxygen and nutrients. The fluid keeps everything weightless and warm (~37°C).",
+      connection: "Talk and sing freely — even though baby can't hear yet, building the habit now means your voice will be familiar later.",
+    };
+  if (w <= 18)
+    return {
+      hearing: "Hearing is switching on. Your baby first picks up sounds from inside you — your heartbeat, blood flow, breathing and tummy gurgles.",
+      vision: "Eyes are sensitive to bright light from outside the womb, though the lids are still closed.",
+      tasteSmell: "Flavours from your meals — sweet, spicy, bitter — pass into the amniotic fluid, and your baby swallows and tastes them.",
+      touch: "Your baby explores by touch: grasping the cord, touching the face, sucking a thumb.",
+      behaviour: "Stronger, more coordinated movements and the very first kicks — you may begin to feel faint flutters (quickening).",
+      environment: "The womb is a surprisingly busy soundscape, dominated by the rhythmic whoosh of your heartbeat and blood flow.",
+      connection: "Place a hand on your bump and talk softly — your baby is starting to hear the music and rhythm of your voice.",
+    };
+  if (w <= 23)
+    return {
+      hearing: "Your baby clearly hears your voice and may startle or calm to familiar sounds; loud noises can prompt a kick.",
+      vision: "Eyes are developing; your baby can sense changes between light and dark through the womb wall.",
+      tasteSmell: "Taste is well developed — babies often respond to sweet flavours and react to strong or bitter ones in the fluid.",
+      touch: "Skin is sensitive all over; your baby responds to a gentle press on your belly and explores constantly.",
+      behaviour: "A daily rhythm of active and quiet (sleep) spells appears — you'll start to notice your baby's busy and calm times.",
+      environment: "Inside it is warm, dim and cushioned, filled with the steady sounds of your body and the muffled voices outside.",
+      connection: "Read aloud or play the same gentle song daily — repetition helps your baby recognise and remember it after birth.",
+    };
+  if (w <= 28)
+    return {
+      hearing: "Hearing is mature enough to recognise your voice over others; your baby may turn toward or settle to it.",
+      vision: "Eyes can now open and close, and your baby's pupils respond to light shining on your belly.",
+      tasteSmell: "Smell is developing too — the same scent compounds in the amniotic fluid help your baby know you after birth.",
+      touch: "Your baby grasps, strokes the cord, and may respond when you or your partner press gently and 'reply'.",
+      behaviour: "Distinct sleep cycles, including dream-like REM sleep, and strong, regular kicks and rolls you can feel daily.",
+      environment: "Space is still generous, letting your baby somersault; the womb stays warm, fluid-filled and full of your body's sounds.",
+      connection: "Try a 'kick game' — press where baby kicked and wait for a reply. Many babies will answer with another nudge.",
+    };
+  if (w <= 33)
+    return {
+      hearing: "Your baby remembers sounds and music heard often, and is soothed by your familiar voice and heartbeat.",
+      vision: "Eyes open during wakeful spells and react to bright light; your baby can perceive a soft glow if light reaches the womb.",
+      tasteSmell: "Taste and smell are fully working, shaped by the flavours of your diet — already building food preferences.",
+      touch: "Touch is highly developed; your baby responds to your hands, warmth, and even your partner's voice and touch.",
+      behaviour: "Longer, more organised sleep with clear active periods — counting your baby's daily movements becomes important now.",
+      environment: "It is getting cosier as your baby fills more of the womb, curling into the head-down position for birth.",
+      connection: "Keep a feel for your baby's normal movement pattern, and contact your clinician promptly if it changes.",
+    };
+  return {
+    hearing: "Your baby's hearing is fully formed and tuned to you — your voice is the most familiar and comforting sound in the world.",
+    vision: "Vision is ready for birth, though still blurry; newborns see best at about 20–30 cm — just the distance to your face while feeding.",
+    tasteSmell: "Taste and smell are fully mature; your baby already knows the scent of your amniotic fluid and will seek it after birth.",
+    touch: "Touch is acute — your baby feels snug, pressed and held, which is why being swaddled and held close will feel like home.",
+    behaviour: "Mostly sleeping, with strong but confined movements; practising breathing, sucking and swallowing, ready to meet you.",
+    environment: "Space is tight and snug now; the warm, dim, sound-filled womb has been your baby's whole world.",
+    connection: "Talk, sing and rest skin-to-skin plans in mind — everything familiar from the womb will help your baby feel safe outside it.",
+  };
+}
+
 /** Numeric growth curve for a gestational week (pure — no data dependency). */
 export interface GrowthParams {
   /** Overall scene scale (compressive map of real length). */

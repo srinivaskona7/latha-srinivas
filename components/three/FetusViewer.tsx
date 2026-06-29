@@ -9,6 +9,7 @@ import {
   sizeComparison,
   systemFirstWeek,
   VIEWER_SYSTEMS,
+  wombInsight,
   type SystemId,
 } from "@/lib/morphology";
 import { getPregnancyState, istTodayISO, weekDayLabel } from "@/lib/pregnancy";
@@ -179,6 +180,7 @@ export function FetusViewer() {
   const beatSec = bpm > 0 ? 60 / bpm : 0;
   const size = sizeComparison(morph.week);
   const move = movementProfile(morph.week);
+  const womb = wombInsight(morph.week);
 
   // Animate image transition when week-stage changes
   useEffect(() => {
@@ -749,6 +751,54 @@ export function FetusViewer() {
             <p className="mt-2 text-sm leading-relaxed text-muted">{BLURBS[active]}</p>
           </div>
         )}
+      </div>
+
+      {/* === INSIDE YOUR WOMB RIGHT NOW (full width) === */}
+      <div className="glass rounded-4xl p-5 sm:p-6 lg:col-span-2">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <h3 className="font-display text-xl font-semibold text-plum sm:text-2xl">
+            Inside your womb right now
+          </h3>
+          <span className="rounded-full bg-peach/15 px-3 py-1 text-xs font-medium text-terracotta">
+            Week {morph.week} · Day {morph.day}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-muted">
+          What your baby is sensing and doing at this exact stage — and the world around them.
+        </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {[
+            { icon: "👂", label: "Hearing", text: womb.hearing },
+            { icon: "👁️", label: "Sight", text: womb.vision },
+            { icon: "👅", label: "Taste & smell", text: womb.tasteSmell },
+            { icon: "✋", label: "Touch", text: womb.touch },
+            { icon: "😴", label: "Sleep & behaviour", text: womb.behaviour },
+            { icon: "🌊", label: "Womb environment", text: womb.environment },
+          ].map((item) => (
+            <div key={item.label} className="rounded-3xl bg-linen/60 p-4">
+              <div className="flex items-center gap-2">
+                <span className="text-lg" aria-hidden>{item.icon}</span>
+                <span className="text-sm font-semibold text-plum">{item.label}</span>
+              </div>
+              <p className="mt-1.5 text-sm leading-relaxed text-ink">{item.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Connection tip for the mother */}
+        <div className="mt-3 rounded-3xl border border-terracotta/25 bg-peach/15 p-4">
+          <div className="flex items-center gap-2">
+            <span className="text-lg" aria-hidden>💛</span>
+            <span className="text-sm font-semibold text-terracotta">Connect with your baby</span>
+          </div>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink">{womb.connection}</p>
+        </div>
+
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          A gentle, research-informed guide to your baby&apos;s development — for education only,
+          not a substitute for your clinician&apos;s advice.
+        </p>
       </div>
 
       {/* Animations */}
