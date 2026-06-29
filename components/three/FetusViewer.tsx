@@ -1,9 +1,7 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Environment, ContactShadows } from "@react-three/drei";
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { FetusModel } from "./FetusModel";
+import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import {
   getMorphology,
   systemFirstWeek,
@@ -25,33 +23,45 @@ const LABELS: Record<SystemId, string> = {
 };
 
 const BLURBS: Record<SystemId, string> = {
-  brain:
-    "The brain grows rapidly throughout pregnancy — forming billions of neurons and folding into its characteristic shape as regions specialise.",
-  heart:
-    "One of the first organs to work. A simple tube loops and divides into four chambers, beating to circulate blood and nourishment.",
-  lungs:
-    "Airways branch and tiny air sacs form. The lungs mature late, making surfactant that lets them expand with that first breath.",
-  digestive:
-    "Stomach, intestines and liver take shape and practise — the baby swallows fluid as the gut coils and matures.",
-  skeleton:
-    "Soft cartilage gradually hardens into bone. The skull stays flexible with soft spots to ease birth and let the brain grow.",
-  muscles:
-    "Muscle tissue strengthens over time, powering the kicks, stretches and hiccups parents come to feel.",
-  placenta:
-    "The baby's lifeline organ — exchanging oxygen, nutrients and waste, and producing hormones that sustain the pregnancy.",
-  umbilicalCord:
-    "Two arteries and one vein carry nourishment from the placenta to the baby and return waste — the baby's supply line.",
+  brain: "The brain grows rapidly throughout pregnancy — forming billions of neurons and folding into its characteristic shape as regions specialise.",
+  heart: "One of the first organs to work. A simple tube loops and divides into four chambers, beating to circulate blood and nourishment.",
+  lungs: "Airways branch and tiny air sacs form. The lungs mature late, making surfactant that lets them expand with that first breath.",
+  digestive: "Stomach, intestines and liver take shape and practise — the baby swallows fluid as the gut coils and matures.",
+  skeleton: "Soft cartilage gradually hardens into bone. The skull stays flexible with soft spots to ease birth and let the brain grow.",
+  muscles: "Muscle tissue strengthens over time, powering the kicks, stretches and hiccups parents come to feel.",
+  placenta: "The baby's lifeline organ — exchanging oxygen, nutrients and waste, and producing hormones that sustain the pregnancy.",
+  umbilicalCord: "Two arteries and one vein carry nourishment from the placenta to the baby and return waste — the baby's supply line.",
 };
 
 const REFERENCE_ISO = "2026-06-26";
+
+/** Returns the public image path for the given gestational week */
+function babyImageForWeek(week: number): string {
+  if (week <= 8)  return "/fetus/week6.png";
+  if (week <= 15) return "/fetus/week10.png";
+  if (week <= 26) return "/fetus/week20.png";
+  return "/fetus/week32.png";
+}
+
+/** Stage description shown next to the image */
+function stageDescription(week: number): { title: string; desc: string } {
+  if (week <= 4)  return { title: "Blastocyst", desc: "A tiny ball of cells has just implanted in the uterine wall. Your baby's journey begins." };
+  if (week <= 8)  return { title: "Embryo", desc: "The heart is beating, limb buds are forming, and the neural tube that will become the brain and spine is closing." };
+  if (week <= 12) return { title: "Early Fetus", desc: "All major organs have begun to form. Fingers and toes are visible, and baby can make small movements." };
+  if (week <= 20) return { title: "Growing Fetus", desc: "Baby looks like a perfectly formed tiny human. You may feel the first kicks soon — called quickening." };
+  if (week <= 28) return { title: "Developing Baby", desc: "Baby opens eyes, can hear your voice, and is building fat stores under the skin for warmth after birth." };
+  if (week <= 36) return { title: "Almost Ready", desc: "Baby fills most of the womb now, practising breathing movements, sucking, and sleeping in regular cycles." };
+  return { title: "Full Term", desc: "Baby is fully ready for the world — pink, plump, and waiting to meet you. Birth is very near." };
+}
 
 export function FetusViewer() {
   const [todayISO, setTodayISO] = useState(REFERENCE_ISO);
   const [day, setDay] = useState<number>(74);
   const [selected, setSelected] = useState<SystemId | null>("heart");
   const [followToday, setFollowToday] = useState(true);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [prevImage, setPrevImage] = useState<string>("");
 
-  // On mount, sync to live IST today.
   useEffect(() => {
     const iso = istTodayISO();
     setTodayISO(iso);
@@ -59,14 +69,9 @@ export function FetusViewer() {
     setDay(s.dayOfPregnancy);
   }, []);
 
-  const todayDay = useMemo(
-    () => getPregnancyState(todayISO).dayOfPregnancy,
-    [todayISO],
-  );
-
+  const todayDay = useMemo(() => getPregnancyState(todayISO).dayOfPregnancy, [todayISO]);
   const morph = useMemo(() => getMorphology(day), [day]);
 
-  // Keep the selection valid — if the chosen system hasn't formed yet, fall back.
   useEffect(() => {
     if (selected && !morph.present[selected]) {
       const firstAvailable = VIEWER_SYSTEMS.find((s) => morph.present[s]) ?? null;
@@ -79,116 +84,135 @@ export function FetusViewer() {
     setDay(Math.min(280, Math.max(1, Math.round(n))));
   };
 
+  const imageSrc = babyImageForWeek(morph.week);
+  const { title: stageTitle, desc: stageDesc } = stageDescription(morph.week);
   const active = selected;
+
+  // Animate image transition when week-stage changes
+  useEffect(() => {
+    if (imageSrc !== prevImage) {
+      setImageLoaded(false);
+      setPrevImage(imageSrc);
+    }
+  }, [imageSrc, prevImage]);
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-      {/* Canvas */}
-      <div className="glass relative h-[460px] overflow-hidden rounded-4xl sm:h-[560px]">
-        <Canvas shadows dpr={[1, 2]} camera={{ position: [1.8, 1.0, 2.8], fov: 44 }}>
-          <Suspense fallback={null}>
-            {/* Warm deep amniotic fluid atmosphere */}
-            <color attach="background" args={["#110504"]} />
-            <fog attach="fog" args={["#200906", 6, 11]} />
+      {/* === PHOTOREALISTIC BABY VIEW === */}
+      <div className="relative overflow-hidden rounded-4xl" style={{ background: "radial-gradient(ellipse at center, #3d0f08 0%, #1a0503 55%, #0a0201 100%)" }}>
 
-            {/* Ambient — soft warm fill, simulates amniotic fluid scatter */}
-            <ambientLight intensity={0.32} color="#FFEAE0" />
+        {/* Womb glow background rings */}
+        <div className="pointer-events-none absolute inset-0">
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "radial-gradient(ellipse 70% 65% at 50% 52%, rgba(180,70,20,0.28) 0%, transparent 70%)",
+          }} />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "radial-gradient(ellipse 45% 42% at 50% 52%, rgba(255,140,40,0.13) 0%, transparent 65%)",
+          }} />
+        </div>
 
-            {/* Key light — warm womb glow from upper front */}
-            <directionalLight
-              position={[2.5, 4.5, 3.5]}
-              intensity={1.6}
-              color="#FFD0B0"
-              castShadow
-              shadow-mapSize={[2048, 2048]}
-              shadow-camera-near={0.5}
-              shadow-camera-far={12}
+        {/* Baby image */}
+        <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
+          {/* Soft vignette overlay */}
+          <div className="pointer-events-none absolute inset-0 z-10" style={{
+            background: "radial-gradient(ellipse 88% 85% at 50% 50%, transparent 40%, rgba(8,2,1,0.65) 100%)",
+          }} />
+
+          {/* Pulsing amniotic fluid shimmer */}
+          <div className="pointer-events-none absolute inset-0 z-10" style={{
+            background: "radial-gradient(ellipse 55% 50% at 50% 50%, rgba(255,160,60,0.06) 0%, transparent 70%)",
+            animation: "womb-pulse 3.5s ease-in-out infinite",
+          }} />
+
+          <div
+            className="relative z-20 transition-opacity duration-700"
+            style={{ opacity: imageLoaded ? 1 : 0, width: "100%", maxWidth: 520 }}
+          >
+            <Image
+              src={imageSrc}
+              alt={`Baby at ${morph.week} weeks`}
+              width={520}
+              height={520}
+              className="w-full object-contain"
+              style={{
+                filter: "drop-shadow(0 0 40px rgba(220,100,30,0.35)) drop-shadow(0 0 80px rgba(180,60,10,0.20))",
+              }}
+              onLoad={() => setImageLoaded(true)}
+              priority
             />
-
-            {/* Rim light — deep red/orange from behind, creates organic SSS rim glow */}
-            <spotLight
-              position={[-3.0, 2.5, -2.5]}
-              angle={0.55}
-              penumbra={0.9}
-              intensity={3.2}
-              color="#FF7040"
-            />
-
-            {/* Fill light — cool pinkish from the right to balance warm key */}
-            <pointLight position={[2.5, -0.5, 1.5]} intensity={0.9} color="#FFB898" />
-
-            {/* Under light — simulates translucent skin glow from below */}
-            <pointLight position={[0, -2.0, 1.0]} intensity={0.7} color="#E8603A" />
-
-            {/* Top highlight */}
-            <pointLight position={[0, 3.5, 1.0]} intensity={0.45} color="#FFE8DC" />
-
-            <FetusModel morph={morph} selected={selected} onSelect={setSelected} />
-            <ContactShadows position={[0, -1.2, 0]} opacity={0.5} scale={6} blur={2.8} far={3.5} />
-            <OrbitControls enablePan enableZoom minDistance={1.5} maxDistance={7} target={[0, 0.15, 0.1]} />
-          </Suspense>
-        </Canvas>
-
-        {/* Stage overlay */}
-        <div className="pointer-events-none absolute left-4 top-4 space-y-1">
-          <div className="rounded-full glass px-3 py-1 text-xs font-medium text-ink">
-            Day {morph.day} · {weekDayLabel(morph.day)} · {morph.stageLabel}
           </div>
-          <div className="rounded-full glass px-3 py-1 text-[11px] text-muted">
+
+          {/* Loading placeholder */}
+          {!imageLoaded && (
+            <div className="absolute inset-0 z-30 flex items-center justify-center">
+              <div style={{
+                width: 80, height: 80, borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(255,140,60,0.3) 0%, transparent 70%)",
+                animation: "womb-pulse 1.5s ease-in-out infinite",
+              }} />
+            </div>
+          )}
+        </div>
+
+        {/* Stage label overlay — top */}
+        <div className="pointer-events-none absolute left-4 top-4 z-30 space-y-1.5">
+          <div className="rounded-full px-3 py-1 text-xs font-semibold backdrop-blur-sm"
+            style={{ background: "rgba(0,0,0,0.45)", color: "#FFD4A8", border: "1px solid rgba(255,160,60,0.25)" }}>
+            {weekDayLabel(morph.day)} · Week {morph.week} · Day {morph.day}
+          </div>
+          <div className="rounded-full px-3 py-1 text-[11px] backdrop-blur-sm"
+            style={{ background: "rgba(0,0,0,0.35)", color: "#FFB888" }}>
             {formatLength(morph.lengthMm)} · {formatWeight(morph.weightG)}
           </div>
         </div>
-        <div className="pointer-events-none absolute bottom-4 left-4 rounded-full glass px-3 py-1 text-[11px] text-muted">
-          drag to rotate · scroll to zoom
+
+        {/* Stage name overlay — bottom */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 z-30 px-5 pb-5 pt-10"
+          style={{ background: "linear-gradient(to top, rgba(8,2,1,0.85) 0%, transparent 100%)" }}>
+          <p className="font-display text-lg font-bold" style={{ color: "#FFD4A8" }}>{stageTitle}</p>
+          <p className="mt-1 text-sm leading-relaxed" style={{ color: "rgba(255,200,150,0.75)" }}>{stageDesc}</p>
         </div>
       </div>
 
-      {/* Controls + info */}
+      {/* === CONTROLS + INFO === */}
       <div className="space-y-4">
-        {/* DAY SLIDER — drives the whole model */}
+        {/* Day slider */}
         <div className="glass rounded-4xl p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold text-plum">
-              Day of growth
-            </h3>
-            <span className="font-display text-xl font-semibold text-terracotta">
-              {morph.day}
-            </span>
+            <h3 className="font-display text-lg font-semibold text-plum">Day of growth</h3>
+            <span className="font-display text-xl font-semibold text-terracotta">{morph.day}</span>
           </div>
           <input
-            type="range"
-            min={1}
-            max={280}
-            step={1}
-            value={day}
+            type="range" min={1} max={280} step={1} value={day}
             onChange={(e) => setDayClamped(Number(e.target.value))}
             className="mt-3 w-full accent-[color:rgb(var(--terracotta))]"
             aria-label="Day of pregnancy"
           />
           <div className="mt-2 flex flex-wrap gap-2">
-            <button onClick={() => setDayClamped(day - 7)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">−7d</button>
-            <button onClick={() => setDayClamped(day + 7)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">+7d</button>
+            <button onClick={() => setDayClamped(day - 7)}
+              className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">−7d</button>
+            <button onClick={() => setDayClamped(day + 7)}
+              className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">+7d</button>
             <button
               onClick={() => { setFollowToday(true); setDay(todayDay); }}
-              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                followToday ? "bg-terracotta text-white" : "bg-linen text-muted hover:text-ink"
-              }`}
-            >
+              className={`rounded-full px-3 py-1 text-xs font-medium ${followToday ? "bg-terracotta text-white" : "bg-linen text-muted hover:text-ink"}`}>
               Today ({todayDay})
             </button>
-            <button onClick={() => setDayClamped(280)} className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">Birth</button>
+            <button onClick={() => setDayClamped(280)}
+              className="rounded-full bg-linen px-3 py-1 text-xs text-muted hover:text-ink">Birth</button>
           </div>
           <p className="mt-2 text-xs text-muted">
-            The shape, proportions and visible organs all change with the day —
-            an artistic educational model, not a medical scan.
+            Drag to see how your baby looks at every stage of pregnancy.
           </p>
         </div>
 
-        {/* SYSTEM SELECTOR */}
+        {/* System selector */}
         <div className="glass rounded-4xl p-5">
           <h3 className="font-display text-lg font-semibold text-plum">Body systems</h3>
           <p className="mt-1 text-sm text-muted">
-            Tap a system to highlight it. Greyed-out systems haven&apos;t formed yet at day {morph.day}.
+            Tap a system to learn about it. Greyed-out systems haven&apos;t formed yet at day {morph.day}.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {VIEWER_SYSTEMS.map((s) => {
@@ -216,13 +240,19 @@ export function FetusViewer() {
 
         {active && morph.present[active] && (
           <div className="glass rounded-4xl p-5">
-            <h4 className="font-display text-xl font-semibold text-terracotta">
-              {LABELS[active]}
-            </h4>
+            <h4 className="font-display text-xl font-semibold text-terracotta">{LABELS[active]}</h4>
             <p className="mt-2 text-sm leading-relaxed text-muted">{BLURBS[active]}</p>
           </div>
         )}
       </div>
+
+      {/* Womb pulse animation */}
+      <style>{`
+        @keyframes womb-pulse {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.04); }
+        }
+      `}</style>
     </div>
   );
 }
