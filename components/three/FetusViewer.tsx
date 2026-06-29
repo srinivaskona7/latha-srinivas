@@ -134,9 +134,11 @@ export function FetusViewer() {
 
   // Growth time-lapse ("play the pregnancy as a film")
   const [playing, setPlaying] = useState(false);
+  const soundByPlayRef = useRef(false);
   // Kick ripples — transient rings spawned on the baby, like a live scan
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; size: number }>>([]);
   const rippleSeq = useRef(0);
+  const scrubbingRef = useRef(false);
 
   useEffect(() => {
     const iso = istTodayISO();
@@ -158,6 +160,14 @@ export function FetusViewer() {
   const setDayClamped = (n: number) => {
     setFollowToday(false);
     setDay(Math.min(280, Math.max(1, Math.round(n))));
+  };
+
+  // Seek the timeline from a pointer x-position on the scrub track.
+  const seekFromClientX = (clientX: number, el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    setPlaying(false);
+    setDayClamped(ratio * 280);
   };
 
   const imageSrc = babyImageForWeek(morph.week);
@@ -191,10 +201,10 @@ export function FetusViewer() {
       playThump(ctx, 0);          // lub
       playThump(ctx, beatSec * 0.32); // dub
     };
-    beat();
+    if (!playing) beat(); // immediate beat on manual enable; during fast play the interval handles it (no bursts)
     const id = window.setInterval(beat, beatSec * 1000);
     return () => window.clearInterval(id);
-  }, [soundOn, beatSec]);
+  }, [soundOn, beatSec, playing]);
 
   // Release the audio context on unmount.
   useEffect(() => () => { void audioCtxRef.current?.close(); }, []);
@@ -224,7 +234,19 @@ export function FetusViewer() {
     setFollowToday(false);
     if (day >= 280) setDay(1); // replay from the beginning
     setPlaying(true);
+    if (!soundOn && bpm > 0) {
+      setSoundOn(true); // give the film a heartbeat soundtrack
+      soundByPlayRef.current = true;
+    }
   };
+
+  // When playback stops, switch off the heartbeat soundtrack if play turned it on.
+  useEffect(() => {
+    if (!playing && soundByPlayRef.current) {
+      setSoundOn(false);
+      soundByPlayRef.current = false;
+    }
+  }, [playing]);
 
   // Kick ripples: from quickening onward, spawn soft expanding rings on the
   // baby at a cadence and size set by the week's movement profile.
@@ -254,19 +276,25 @@ export function FetusViewer() {
       {/* The renders already contain the full womb (sac, placenta, vessels, glow),
           so we present them edge-to-edge in a clean frame instead of layering a
           second, mismatched gradient womb on top. */}
+      <div className="space-y-3">
       <div
         className="relative aspect-square w-full overflow-hidden rounded-4xl"
         style={{ background: "#160604" }}
       >
-        {/* Zoom layer — continuous day-driven growth */}
+        {/* Ken-Burns layer — slow cinematic drift while the film plays */}
         <div
           className="absolute inset-0"
-          style={{
-            transform: `scale(${zoom})`,
-            transformOrigin: "50% 48%",
-            transition: "transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
-          }}
+          style={playing ? { animation: "kenburns 12s ease-in-out infinite" } : undefined}
         >
+          {/* Zoom layer — continuous day-driven growth */}
+          <div
+            className="absolute inset-0"
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "50% 48%",
+              transition: "transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
+            }}
+          >
           {/* Idle-motion layer — week-aware movement so the baby moves the way
               it actually does at this stage (flickers → kicks → confined rolls). */}
           <div
@@ -336,6 +364,7 @@ export function FetusViewer() {
                 );
               })}
           </div>
+        </div>
         </div>
 
         {/* Gentle amniotic shimmer — adds life without competing with the art */}
@@ -437,6 +466,22 @@ export function FetusViewer() {
           <p className="mt-1 text-sm leading-relaxed" style={{ color: "rgba(255,200,150,0.75)" }}>{stageDesc}</p>
         </div>
 
+        {/* Per-week narration caption — fades in on each new week while playing */}
+        {playing && (
+          <div
+            key={morph.week}
+            className="pointer-events-none absolute left-1/2 top-16 z-30 -translate-x-1/2 text-center"
+            style={{ animation: "caption-in 0.6s ease-out" }}
+          >
+            <p className="font-display text-2xl font-bold" style={{ color: "#FFE4C4", textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
+              Week {morph.week}
+            </p>
+            <p className="text-sm font-medium" style={{ color: "#FFC79A", textShadow: "0 1px 8px rgba(0,0,0,0.7)" }}>
+              {move.title}
+            </p>
+          </div>
+        )}
+
         {/* Time-lapse play/pause — bottom-right */}
         <button
           onClick={togglePlay}
@@ -451,6 +496,63 @@ export function FetusViewer() {
         >
           {playing ? "⏸" : "▶"}
         </button>
+      </div>
+
+      {/* Scrubbable timeline — trimester segments + week ticks under the film */}
+      <div className="px-1">
+        <div
+          role="slider"
+          aria-label="Scrub pregnancy timeline"
+          aria-valuemin={1}
+          aria-valuemax={280}
+          aria-valuenow={day}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowLeft") setDayClamped(day - 1);
+            if (e.key === "ArrowRight") setDayClamped(day + 1);
+          }}
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId);
+            scrubbingRef.current = true;
+            seekFromClientX(e.clientX, e.currentTarget);
+          }}
+          onPointerMove={(e) => {
+            if (scrubbingRef.current) seekFromClientX(e.clientX, e.currentTarget);
+          }}
+          onPointerUp={() => { scrubbingRef.current = false; }}
+          className="relative h-7 cursor-pointer touch-none select-none"
+        >
+          {/* Track with trimester bands (T1 ≤wk13, T2 ≤wk27, T3 →birth) */}
+          <div
+            className="absolute left-0 right-0 top-1/2 h-2.5 -translate-y-1/2 overflow-hidden rounded-full"
+            style={{
+              background:
+                "linear-gradient(to right, rgb(var(--peach) / 0.35) 0% 32.5%, rgb(var(--sage) / 0.35) 32.5% 67.5%, rgb(var(--plum) / 0.30) 67.5% 100%)",
+            }}
+          >
+            {/* Progress fill */}
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${(day / 280) * 100}%`, background: "rgb(var(--terracotta))", transition: scrubbingRef.current || playing ? "none" : "width 0.2s ease" }}
+            />
+          </div>
+          {/* Trimester divider ticks */}
+          {[32.5, 67.5].map((p) => (
+            <span key={p} className="absolute top-1/2 h-3.5 w-px -translate-y-1/2 bg-white/70" style={{ left: `${p}%` }} />
+          ))}
+          {/* Handle knob */}
+          <span
+            className="absolute top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-terracotta shadow"
+            style={{ left: `${(day / 280) * 100}%` }}
+          />
+        </div>
+        <div className="mt-1 flex justify-between text-[10px] font-medium text-muted">
+          <span>T1</span>
+          <span>T2</span>
+          <span>T3</span>
+          <span>Birth</span>
+        </div>
+      </div>
       </div>
 
       {/* === CONTROLS + INFO === */}
@@ -663,8 +765,17 @@ export function FetusViewer() {
           0% { transform: translate(-50%,-50%) scale(0.25); opacity: 0.6; }
           100% { transform: translate(-50%,-50%) scale(1); opacity: 0; }
         }
+        @keyframes kenburns {
+          0%   { transform: scale(1) translate(0, 0); }
+          50%  { transform: scale(1.06) translate(-2%, 1.5%); }
+          100% { transform: scale(1) translate(0, 0); }
+        }
+        @keyframes caption-in {
+          0%   { opacity: 0; transform: translate(-50%, 8px); }
+          100% { opacity: 1; transform: translate(-50%, 0); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          [style*="baby-move"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"] {
+          [style*="baby-move"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"], [style*="kenburns"], [style*="caption-in"] {
             animation: none !important;
           }
         }
