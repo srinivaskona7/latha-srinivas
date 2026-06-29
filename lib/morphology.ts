@@ -140,7 +140,7 @@ export function movementProfile(week: number): MovementProfile {
       desc: "Far too small to move — cells are dividing and the body plan is being laid down.",
       motions: ["Cell division", "Neural tube closing"],
       amplitudePx: 2,
-      rotateDeg: 0.2,
+      rotateDeg: 0.3,
       periodSec: 9,
       feltByMother: false,
     };
@@ -149,9 +149,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "First flickers",
       desc: "The earliest spontaneous twitches begin as the spinal cord wires up — invisible from outside.",
       motions: ["Tiny twitches", "Startle flickers"],
-      amplitudePx: 5,
-      rotateDeg: 0.8,
-      periodSec: 6,
+      amplitudePx: 4,
+      rotateDeg: 0.5,
+      periodSec: 7,
       feltByMother: false,
     };
   if (w <= 12)
@@ -159,9 +159,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "Wriggles & bends",
       desc: "Baby bends, hiccups, and curls — moving freely in the roomy sac, though still unfelt.",
       motions: ["Bending", "Hiccups", "Hand-to-face"],
-      amplitudePx: 9,
-      rotateDeg: 1.6,
-      periodSec: 5,
+      amplitudePx: 5,
+      rotateDeg: 0.9,
+      periodSec: 6,
       feltByMother: false,
     };
   if (w <= 15)
@@ -169,9 +169,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "Stretches & swims",
       desc: "Stronger, more coordinated stretches and 'swimming' movements through the fluid.",
       motions: ["Stretching", "Swimming", "Yawning", "Thumb sucking"],
-      amplitudePx: 12,
-      rotateDeg: 2.2,
-      periodSec: 5,
+      amplitudePx: 6,
+      rotateDeg: 1.1,
+      periodSec: 6,
       feltByMother: false,
     };
   if (w <= 22)
@@ -179,9 +179,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "Quickening",
       desc: "The first flutters you can feel — light 'butterfly' taps as kicks grow stronger.",
       motions: ["First kicks", "Flutters", "Rolling", "Hiccups"],
-      amplitudePx: 14,
-      rotateDeg: 2.6,
-      periodSec: 4.5,
+      amplitudePx: 7,
+      rotateDeg: 1.2,
+      periodSec: 5.5,
       feltByMother: true,
     };
   if (w <= 27)
@@ -189,9 +189,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "Kicks & rolls",
       desc: "Clear, regular kicks, jabs and rolls — you may notice a daily rhythm of activity.",
       motions: ["Strong kicks", "Jabs", "Rolling", "Responds to sound"],
-      amplitudePx: 16,
-      rotateDeg: 3,
-      periodSec: 4,
+      amplitudePx: 8,
+      rotateDeg: 1.4,
+      periodSec: 5,
       feltByMother: true,
     };
   if (w <= 32)
@@ -199,9 +199,9 @@ export function movementProfile(week: number): MovementProfile {
       title: "Big movements",
       desc: "Powerful kicks and stretches, startle reflexes, and visible belly ripples.",
       motions: ["Powerful kicks", "Stretching", "Startles", "Practice breathing"],
-      amplitudePx: 18,
-      rotateDeg: 3.2,
-      periodSec: 3.6,
+      amplitudePx: 8,
+      rotateDeg: 1.4,
+      periodSec: 4.8,
       feltByMother: true,
     };
   if (w <= 36)
@@ -209,18 +209,18 @@ export function movementProfile(week: number): MovementProfile {
       title: "Squirms & jabs",
       desc: "Less tumbling now — more squirms, jabs and pokes as space gets tight.",
       motions: ["Squirming", "Jabs & pokes", "Hiccups", "Grasping"],
-      amplitudePx: 12,
-      rotateDeg: 2,
-      periodSec: 4,
+      amplitudePx: 6,
+      rotateDeg: 1.0,
+      periodSec: 5,
       feltByMother: true,
     };
   return {
     title: "Confined & strong",
     desc: "Snug and curled — movements are strong but small, mostly stretches, rolls and hiccups.",
     motions: ["Strong stretches", "Slow rolls", "Hiccups", "Presses & pushes"],
-    amplitudePx: 8,
-    rotateDeg: 1.4,
-    periodSec: 4.5,
+    amplitudePx: 4,
+    rotateDeg: 0.8,
+    periodSec: 5.5,
     feltByMother: true,
   };
 }

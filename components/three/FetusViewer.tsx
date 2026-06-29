@@ -295,16 +295,30 @@ export function FetusViewer() {
               transition: "transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
             }}
           >
-          {/* Idle-motion layer — week-aware movement so the baby moves the way
-              it actually does at this stage (flickers → kicks → confined rolls). */}
+          {/* Idle-motion: two nested layers at different periods so the baby
+              drifts organically (buoyant bob + faint breathing on the outer,
+              gentle sway/rotate on the inner) rather than sliding as a rigid
+              block. Amplitudes come from the week's movement profile. */}
           <div
             className="absolute inset-0"
             style={
               motionOn
                 ? ({
-                    animation: `baby-move ${move.periodSec}s ease-in-out infinite`,
+                    animation: `baby-bob ${move.periodSec}s ease-in-out infinite`,
                     ["--mv-amp" as string]: `${move.amplitudePx}px`,
                     ["--mv-amp-neg" as string]: `${-move.amplitudePx}px`,
+                  } as CSSProperties)
+                : undefined
+            }
+          >
+          <div
+            className="absolute inset-0"
+            style={
+              motionOn
+                ? ({
+                    animation: `baby-sway ${(move.periodSec * 1.7).toFixed(2)}s ease-in-out infinite`,
+                    ["--mv-ampx" as string]: `${(move.amplitudePx * 0.55).toFixed(1)}px`,
+                    ["--mv-ampx-neg" as string]: `${(-move.amplitudePx * 0.55).toFixed(1)}px`,
                     ["--mv-rot" as string]: `${move.rotateDeg}deg`,
                     ["--mv-rot-neg" as string]: `${-move.rotateDeg}deg`,
                   } as CSSProperties)
@@ -364,6 +378,7 @@ export function FetusViewer() {
                 );
               })}
           </div>
+        </div>
         </div>
         </div>
 
@@ -742,13 +757,15 @@ export function FetusViewer() {
           0%, 100% { opacity: 0.6; transform: scale(1); }
           50% { opacity: 1; transform: scale(1.04); }
         }
-        @keyframes baby-move {
-          0%   { transform: translate(0, 0) rotate(0deg); }
-          20%  { transform: translate(calc(var(--mv-amp) * 0.4), var(--mv-amp-neg)) rotate(var(--mv-rot)); }
-          40%  { transform: translate(var(--mv-amp-neg), calc(var(--mv-amp) * 0.3)) rotate(var(--mv-rot-neg)); }
-          60%  { transform: translate(calc(var(--mv-amp) * 0.5), calc(var(--mv-amp) * 0.2)) rotate(var(--mv-rot)); }
-          80%  { transform: translate(calc(var(--mv-amp-neg) * 0.3), var(--mv-amp-neg)) rotate(var(--mv-rot-neg)); }
-          100% { transform: translate(0, 0) rotate(0deg); }
+        @keyframes baby-bob {
+          0%   { transform: translateY(var(--mv-amp)) scale(0.994); }
+          50%  { transform: translateY(var(--mv-amp-neg)) scale(1.006); }
+          100% { transform: translateY(var(--mv-amp)) scale(0.994); }
+        }
+        @keyframes baby-sway {
+          0%   { transform: translateX(var(--mv-ampx-neg)) rotate(var(--mv-rot-neg)); }
+          50%  { transform: translateX(var(--mv-ampx)) rotate(var(--mv-rot)); }
+          100% { transform: translateX(var(--mv-ampx-neg)) rotate(var(--mv-rot-neg)); }
         }
         @keyframes heartbeat {
           0%, 100% { transform: scale(1); }
@@ -775,7 +792,7 @@ export function FetusViewer() {
           100% { opacity: 1; transform: translate(-50%, 0); }
         }
         @media (prefers-reduced-motion: reduce) {
-          [style*="baby-move"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"], [style*="kenburns"], [style*="caption-in"] {
+          [style*="baby-bob"], [style*="baby-sway"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"], [style*="kenburns"], [style*="caption-in"] {
             animation: none !important;
           }
         }
