@@ -19,11 +19,11 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full border border-peach/30 shadow-sm">
             <Image
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.png`}
               alt="Srinivas & Latha Logo"
               fill
               sizes="36px"
-              className="object-cover"
+              className="object-cover animate-gentle-pan"
               priority
             />
           </div>

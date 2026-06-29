@@ -12,7 +12,7 @@ export default function PartnerPage() {
       <SectionReveal>
         <div className="relative mb-8 h-64 w-full overflow-hidden rounded-4xl border border-peach/15 shadow-sm">
           <Image
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.png`}
             alt="Srinivas & Latha"
             fill
             sizes="(min-width: 1024px) 896px, 100vw"

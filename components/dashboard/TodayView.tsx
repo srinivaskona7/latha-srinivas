@@ -49,11 +49,11 @@ export function TodayView() {
         <div className="relative overflow-hidden rounded-4xl bg-linen/50 p-6 border border-peach/15 flex flex-col md:flex-row items-center gap-6 shadow-sm">
           <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-peach/30 shadow-md">
             <Image
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.png`}
               alt="Srinivas & Latha"
               fill
               sizes="80px"
-              className="object-cover animate-gentle-pan"
+              className="object-cover"
               priority
             />
           </div>
@@ -66,8 +66,8 @@ export function TodayView() {
             </p>
             <div className="pt-2 flex justify-center md:justify-start gap-3">
               <a
-                href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.jpg`}
-                download="Srinivas-Latha-Couple.jpg"
+                href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/couple.png`}
+                download="Srinivas-Latha-Couple.png"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-full bg-peach/10 px-3.5 py-1.5 text-xs font-semibold text-terracotta transition hover:bg-peach/25 shadow-sm"
