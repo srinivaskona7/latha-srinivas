@@ -35,12 +35,22 @@ const BLURBS: Record<SystemId, string> = {
 
 const REFERENCE_ISO = "2026-06-26";
 
-/** Returns the public image path for the given gestational week */
+/** Returns the public image path for the given gestational week.
+ *  Each path is one of four photorealistic anchor renders (weeks 6, 10, 20, 32),
+ *  chosen so the depicted development closely matches the current band. */
 function babyImageForWeek(week: number): string {
-  if (week <= 8)  return "/fetus/week6.png";
-  if (week <= 15) return "/fetus/week10.png";
-  if (week <= 26) return "/fetus/week20.png";
-  return "/fetus/week32.png";
+  if (week <= 9)  return "/fetus/week6.png";   // embryo — large head, tail, dark eye
+  if (week <= 16) return "/fetus/week10.png";  // early fetus — recognisably human
+  if (week <= 28) return "/fetus/week20.png";  // clearly a baby, lean
+  return "/fetus/week32.png";                  // plump, near term
+}
+
+/** Continuous, day-driven zoom so the baby visibly grows between stage swaps.
+ *  Driven by the real length curve (displayScale ≈ 0.42→1.2), eased into a
+ *  subtle 1.00→1.14 frame zoom — fast early, gentle later, matching biology. */
+function babyZoom(displayScale: number): number {
+  const t = Math.min(1, Math.max(0, (displayScale - 0.42) / 0.78));
+  return 1 + t * 0.14;
 }
 
 /** Stage description shown next to the image */
@@ -85,6 +95,7 @@ export function FetusViewer() {
   };
 
   const imageSrc = babyImageForWeek(morph.week);
+  const zoom = babyZoom(morph.displayScale);
   const { title: stageTitle, desc: stageDesc } = stageDescription(morph.week);
   const active = selected;
 
@@ -99,62 +110,60 @@ export function FetusViewer() {
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
       {/* === PHOTOREALISTIC BABY VIEW === */}
-      <div className="relative overflow-hidden rounded-4xl" style={{ background: "radial-gradient(ellipse at center, #3d0f08 0%, #1a0503 55%, #0a0201 100%)" }}>
+      {/* The renders already contain the full womb (sac, placenta, vessels, glow),
+          so we present them edge-to-edge in a clean frame instead of layering a
+          second, mismatched gradient womb on top. */}
+      <div
+        className="relative aspect-square w-full overflow-hidden rounded-4xl"
+        style={{ background: "#160604" }}
+      >
+        {/* Baby image — fills the frame, grows subtly with the day via transform */}
+        <Image
+          src={imageSrc}
+          alt={`Baby at ${morph.week} weeks`}
+          fill
+          sizes="(min-width: 1024px) 60vw, 100vw"
+          className="object-cover"
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: "50% 48%",
+            opacity: imageLoaded ? 1 : 0,
+            transition: "opacity 0.7s ease, transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
+          }}
+          onLoad={() => setImageLoaded(true)}
+          priority
+        />
 
-        {/* Womb glow background rings */}
-        <div className="pointer-events-none absolute inset-0">
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "radial-gradient(ellipse 70% 65% at 50% 52%, rgba(180,70,20,0.28) 0%, transparent 70%)",
-          }} />
-          <div style={{
-            position: "absolute", inset: 0,
-            background: "radial-gradient(ellipse 45% 42% at 50% 52%, rgba(255,140,40,0.13) 0%, transparent 65%)",
-          }} />
-        </div>
+        {/* Gentle amniotic shimmer — adds life without competing with the art */}
+        <div
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{
+            background:
+              "radial-gradient(ellipse 55% 50% at 50% 46%, rgba(255,180,90,0.07) 0%, transparent 70%)",
+            animation: "womb-pulse 4s ease-in-out infinite",
+          }}
+        />
 
-        {/* Baby image */}
-        <div className="relative flex items-center justify-center" style={{ minHeight: 460 }}>
-          {/* Soft vignette overlay */}
-          <div className="pointer-events-none absolute inset-0 z-10" style={{
-            background: "radial-gradient(ellipse 88% 85% at 50% 50%, transparent 40%, rgba(8,2,1,0.65) 100%)",
-          }} />
+        {/* Subtle inner vignette to seat the image in the card */}
+        <div
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{ boxShadow: "inset 0 0 90px 20px rgba(10,2,1,0.55)" }}
+        />
 
-          {/* Pulsing amniotic fluid shimmer */}
-          <div className="pointer-events-none absolute inset-0 z-10" style={{
-            background: "radial-gradient(ellipse 55% 50% at 50% 50%, rgba(255,160,60,0.06) 0%, transparent 70%)",
-            animation: "womb-pulse 3.5s ease-in-out infinite",
-          }} />
-
-          <div
-            className="relative z-20 transition-opacity duration-700"
-            style={{ opacity: imageLoaded ? 1 : 0, width: "100%", maxWidth: 520 }}
-          >
-            <Image
-              src={imageSrc}
-              alt={`Baby at ${morph.week} weeks`}
-              width={520}
-              height={520}
-              className="w-full object-contain"
+        {/* Loading placeholder */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 z-30 flex items-center justify-center">
+            <div
               style={{
-                filter: "drop-shadow(0 0 40px rgba(220,100,30,0.35)) drop-shadow(0 0 80px rgba(180,60,10,0.20))",
-              }}
-              onLoad={() => setImageLoaded(true)}
-              priority
-            />
-          </div>
-
-          {/* Loading placeholder */}
-          {!imageLoaded && (
-            <div className="absolute inset-0 z-30 flex items-center justify-center">
-              <div style={{
-                width: 80, height: 80, borderRadius: "50%",
+                width: 80,
+                height: 80,
+                borderRadius: "50%",
                 background: "radial-gradient(circle, rgba(255,140,60,0.3) 0%, transparent 70%)",
                 animation: "womb-pulse 1.5s ease-in-out infinite",
-              }} />
-            </div>
-          )}
-        </div>
+              }}
+            />
+          </div>
+        )}
 
         {/* Stage label overlay — top */}
         <div className="pointer-events-none absolute left-4 top-4 z-30 space-y-1.5">
