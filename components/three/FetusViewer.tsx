@@ -44,19 +44,20 @@ const REFERENCE_ISO = "2026-06-26";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /** Returns the public image path for the given gestational week.
- *  Each path is one of ten photorealistic anchor renders,
- *  chosen so the depicted development closely matches the current band. */
+ *  Image files are mapped by their *actual depicted maturity*, which does not
+ *  always match the filename — ordered here so the shown baby matures
+ *  monotonically with gestational age (lean & big-headed early, plump at term).
+ *  week36.png depicts twins, so it is intentionally not used for this singleton. */
 function babyImageForWeek(week: number): string {
-  if (week <= 8)  return `${BASE}/fetus/week6.png`;    // embryo — large head, tail, dark eye
-  if (week <= 11) return `${BASE}/fetus/week10.png`;   // early fetus — recognisably human
-  if (week <= 13) return `${BASE}/fetus/week12.png`;   // 12 weeks — fingers/toes fully separate
-  if (week <= 16) return `${BASE}/fetus/week15.png`;   // 15 weeks — active wriggles, thin skin
-  if (week <= 21) return `${BASE}/fetus/week20.png`;   // 20 weeks — vernix covers, kicks felt
-  if (week <= 25) return `${BASE}/fetus/week24.png`;   // 24 weeks — lungs branch, responds to sound
-  if (week <= 29) return `${BASE}/fetus/week28.png`;   // 28 weeks — eyes open, fat accumulating
-  if (week <= 33) return `${BASE}/fetus/week32.png`;   // 32 weeks — chubby cheeks, sleep cycles
-  if (week <= 37) return `${BASE}/fetus/week36.png`;   // 36 weeks — filling space tightly, head down
-  return `${BASE}/fetus/week40.png`;                   // 40 weeks — full term, ready for birth
+  if (week <= 9)  return `${BASE}/fetus/week6.png`;    // embryo — large head, tail, dark eye
+  if (week <= 13) return `${BASE}/fetus/week10.png`;   // early fetus — dominant head, lean translucent body
+  if (week <= 17) return `${BASE}/fetus/week15.png`;   // lean fetus, big head, see-through skin, fine limbs
+  if (week <= 21) return `${BASE}/fetus/week12.png`;   // formed but lean, ribs visible through thin skin
+  if (week <= 26) return `${BASE}/fetus/week24.png`;   // lean & slightly wrinkled, head-down, little fat
+  if (week <= 31) return `${BASE}/fetus/week28.png`;   // filling out, vernix streaks, smoother skin
+  if (week <= 35) return `${BASE}/fetus/week32.png`;   // chubby cheeks, hair, rounding out
+  if (week <= 38) return `${BASE}/fetus/week40.png`;   // plump, near term, smooth skin
+  return `${BASE}/fetus/week20.png`;                   // fullest-term look — rounded, term baby
 }
 
 /** Continuous, day-driven zoom so the baby visibly grows between stage swaps.

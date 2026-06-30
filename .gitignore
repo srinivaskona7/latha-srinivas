@@ -13,3 +13,6 @@ public/fallback-*.js
 
 # next
 next-env.d.ts
+
+# TypeScript incremental build cache
+tsconfig.tsbuildinfo

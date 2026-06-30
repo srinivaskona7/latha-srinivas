@@ -32,7 +32,10 @@ client-side every IST day from a fixed LMP. Deploys as static files (`out/`).
     light rig + translucent `AmnioticSac`) wrapping procedural `FetusModel` (`spin` prop gates
     self-rotation so OrbitControls autoRotate can own it). NO external GLB/HDR — all procedural,
     offline-safe.
-  - **photo** = the 4 anchor PNGs (week6/10/20/32) with hotspots/ripples/Ken-Burns zoom.
+  - **photo** = the anchor PNGs (`public/fetus/weekN.png`) with hotspots/ripples/Ken-Burns zoom.
+    ⚠️ **Filenames do NOT match depicted maturity** — `babyImageForWeek()` maps each week to the
+    most accurate file in *true maturity order* (week20.png looks near-term → used at 39–40 wk;
+    **week36.png is TWINS → unused**). Re-check this mapping if renders are regenerated.
     Loading spinner + ripples + hotspots are guarded to photo-only.
   - Lazy-loaded via next/dynamic ssr:false in app/explore + app/imagine.
 - **Pregnancy Plan**: `lib/plan.ts` (pure, 8 week-banded `PlanPhase`s, `currentPhase(week)`) +
