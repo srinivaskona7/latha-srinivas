@@ -14,6 +14,7 @@ import {
 } from "@/lib/morphology";
 import { getPregnancyState, istTodayISO, weekDayLabel } from "@/lib/pregnancy";
 import { formatLength, formatWeight } from "@/lib/derive";
+import { FetusScene } from "./FetusScene";
 
 const LABELS: Record<SystemId, string> = {
   brain: "Brain",
@@ -43,13 +44,19 @@ const REFERENCE_ISO = "2026-06-26";
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 /** Returns the public image path for the given gestational week.
- *  Each path is one of four photorealistic anchor renders (weeks 6, 10, 20, 32),
+ *  Each path is one of ten photorealistic anchor renders,
  *  chosen so the depicted development closely matches the current band. */
 function babyImageForWeek(week: number): string {
-  if (week <= 9)  return `${BASE}/fetus/week6.png`;   // embryo — large head, tail, dark eye
-  if (week <= 16) return `${BASE}/fetus/week10.png`;  // early fetus — recognisably human
-  if (week <= 28) return `${BASE}/fetus/week20.png`;  // clearly a baby, lean
-  return `${BASE}/fetus/week32.png`;                  // plump, near term
+  if (week <= 8)  return `${BASE}/fetus/week6.png`;    // embryo — large head, tail, dark eye
+  if (week <= 11) return `${BASE}/fetus/week10.png`;   // early fetus — recognisably human
+  if (week <= 13) return `${BASE}/fetus/week12.png`;   // 12 weeks — fingers/toes fully separate
+  if (week <= 16) return `${BASE}/fetus/week15.png`;   // 15 weeks — active wriggles, thin skin
+  if (week <= 21) return `${BASE}/fetus/week20.png`;   // 20 weeks — vernix covers, kicks felt
+  if (week <= 25) return `${BASE}/fetus/week24.png`;   // 24 weeks — lungs branch, responds to sound
+  if (week <= 29) return `${BASE}/fetus/week28.png`;   // 28 weeks — eyes open, fat accumulating
+  if (week <= 33) return `${BASE}/fetus/week32.png`;   // 32 weeks — chubby cheeks, sleep cycles
+  if (week <= 37) return `${BASE}/fetus/week36.png`;   // 36 weeks — filling space tightly, head down
+  return `${BASE}/fetus/week40.png`;                   // 40 weeks — full term, ready for birth
 }
 
 /** Continuous, day-driven zoom so the baby visibly grows between stage swaps.
@@ -76,15 +83,45 @@ const HOTSPOTS_RAW: Record<string, Partial<Record<SystemId, Point>>> = {
     digestive: { x: 40, y: 63 }, skeleton: { x: 46, y: 72 }, muscles: { x: 49, y: 74 },
     umbilicalCord: { x: 62, y: 60 }, placenta: { x: 84, y: 30 },
   },
+  "week12": {
+    brain: { x: 44, y: 25 }, heart: { x: 41, y: 52 }, lungs: { x: 43, y: 49 },
+    digestive: { x: 40, y: 63 }, skeleton: { x: 46, y: 72 }, muscles: { x: 49, y: 74 },
+    umbilicalCord: { x: 62, y: 60 }, placenta: { x: 84, y: 30 },
+  },
+  "week15": {
+    brain: { x: 43, y: 26 }, heart: { x: 42, y: 51 }, lungs: { x: 44, y: 48 },
+    digestive: { x: 41, y: 62 }, skeleton: { x: 47, y: 71 }, muscles: { x: 50, y: 73 },
+    umbilicalCord: { x: 64, y: 58 }, placenta: { x: 82, y: 32 },
+  },
   "week20": {
     brain: { x: 45, y: 27 }, heart: { x: 44, y: 50 }, lungs: { x: 46, y: 47 },
     digestive: { x: 47, y: 58 }, skeleton: { x: 50, y: 72 }, muscles: { x: 53, y: 66 },
     umbilicalCord: { x: 68, y: 44 }, placenta: { x: 22, y: 56 },
   },
+  "week24": {
+    brain: { x: 46, y: 28 }, heart: { x: 45, y: 49 }, lungs: { x: 47, y: 46 },
+    digestive: { x: 48, y: 57 }, skeleton: { x: 51, y: 71 }, muscles: { x: 54, y: 65 },
+    umbilicalCord: { x: 67, y: 45 }, placenta: { x: 24, y: 55 },
+  },
+  "week28": {
+    brain: { x: 48, y: 29 }, heart: { x: 47, y: 48 }, lungs: { x: 49, y: 45 },
+    digestive: { x: 50, y: 56 }, skeleton: { x: 53, y: 70 }, muscles: { x: 56, y: 64 },
+    umbilicalCord: { x: 65, y: 46 }, placenta: { x: 26, y: 54 },
+  },
   "week32": {
     brain: { x: 62, y: 27 }, heart: { x: 50, y: 48 }, lungs: { x: 52, y: 45 },
     digestive: { x: 48, y: 58 }, skeleton: { x: 40, y: 72 }, muscles: { x: 44, y: 64 },
     umbilicalCord: { x: 32, y: 30 }, placenta: { x: 80, y: 30 },
+  },
+  "week36": {
+    brain: { x: 60, y: 28 }, heart: { x: 52, y: 47 }, lungs: { x: 53, y: 44 },
+    digestive: { x: 49, y: 59 }, skeleton: { x: 42, y: 71 }, muscles: { x: 45, y: 63 },
+    umbilicalCord: { x: 34, y: 32 }, placenta: { x: 78, y: 32 },
+  },
+  "week40": {
+    brain: { x: 58, y: 29 }, heart: { x: 54, y: 46 }, lungs: { x: 54, y: 43 },
+    digestive: { x: 51, y: 60 }, skeleton: { x: 44, y: 70 }, muscles: { x: 46, y: 62 },
+    umbilicalCord: { x: 36, y: 34 }, placenta: { x: 76, y: 34 },
   },
 };
 function getHotspots(imageSrc: string): Partial<Record<SystemId, Point>> {
@@ -128,6 +165,7 @@ export function FetusViewer() {
   const [prevImage, setPrevImage] = useState<string>("");
 
   // Viewing options
+  const [viewMode, setViewMode] = useState<"3d" | "photo">("3d");
   const [motionOn, setMotionOn] = useState(true);
   const [hotspotsOn, setHotspotsOn] = useState(true);
   const [soundOn, setSoundOn] = useState(false);
@@ -283,6 +321,16 @@ export function FetusViewer() {
         className="relative aspect-square w-full overflow-hidden rounded-4xl"
         style={{ background: "#160604" }}
       >
+        {viewMode === "3d" ? (
+          <div className="absolute inset-0">
+            <FetusScene
+              morph={morph}
+              selected={selected}
+              onSelect={setSelected}
+              autoRotate={motionOn}
+            />
+          </div>
+        ) : (<>
         {/* Ken-Burns layer — slow cinematic drift while the film plays */}
         <div
           className="absolute inset-0"
@@ -383,6 +431,7 @@ export function FetusViewer() {
         </div>
         </div>
         </div>
+        </>)}
 
         {/* Gentle amniotic shimmer — adds life without competing with the art */}
         <div
@@ -401,6 +450,7 @@ export function FetusViewer() {
         />
 
         {/* Kick ripples — transient rings, like movement seen on a live scan */}
+        {viewMode === "photo" && (
         <div className="pointer-events-none absolute inset-0 z-[15]">
           {ripples.map((r) => (
             <span
@@ -418,9 +468,10 @@ export function FetusViewer() {
             />
           ))}
         </div>
+        )}
 
         {/* Loading placeholder */}
-        {!imageLoaded && (
+        {viewMode === "photo" && !imageLoaded && (
           <div className="absolute inset-0 z-30 flex items-center justify-center">
             <div
               style={{
@@ -449,9 +500,22 @@ export function FetusViewer() {
         {/* Viewing toggles — top-right */}
         <div className="absolute right-4 top-4 z-30 flex gap-1.5">
           <button
+            onClick={() => setViewMode((m) => (m === "3d" ? "photo" : "3d"))}
+            aria-label={viewMode === "3d" ? "Switch to photo view" : "Switch to 3D model"}
+            title={viewMode === "3d" ? "Switch to photo view" : "Switch to interactive 3D model"}
+            className="rounded-full px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm transition-colors"
+            style={{
+              background: "rgba(255,150,60,0.85)",
+              color: "#1a0503",
+              border: "1px solid rgba(255,200,150,0.5)",
+            }}
+          >
+            {viewMode === "3d" ? "◉ 3D" : "🖼 Photo"}
+          </button>
+          <button
             onClick={() => setMotionOn((v) => !v)}
             aria-pressed={motionOn}
-            title="Toggle gentle motion"
+            title={viewMode === "3d" ? "Toggle auto-rotate" : "Toggle gentle motion"}
             className="rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm transition-colors"
             style={{
               background: motionOn ? "rgba(255,150,60,0.85)" : "rgba(0,0,0,0.45)",
@@ -459,8 +523,9 @@ export function FetusViewer() {
               border: "1px solid rgba(255,160,60,0.3)",
             }}
           >
-            ✷ Motion
+            {viewMode === "3d" ? "↻ Spin" : "✷ Motion"}
           </button>
+          {viewMode === "photo" && (
           <button
             onClick={() => setHotspotsOn((v) => !v)}
             aria-pressed={hotspotsOn}
@@ -474,6 +539,7 @@ export function FetusViewer() {
           >
             ◉ Points
           </button>
+          )}
         </div>
 
         {/* Stage name overlay — bottom */}
