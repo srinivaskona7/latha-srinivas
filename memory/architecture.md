@@ -26,8 +26,24 @@ client-side every IST day from a fixed LMP. Deploys as static files (`out/`).
   to fonts.googleapis.com. CSS vars --font-fraunces/--font-inter defined in globals.css with fallbacks.
 - `next.config.mjs`: `output:'export'`, `images.unoptimized`, `trailingSlash:true` → internal links use trailing slash.
 - next-pwa disabled in dev; generates public/sw.js on build (gitignored).
-- 3D viewer (`components/three/`) is procedural geometry only — NO external GLB. Lazy-loaded via
-  next/dynamic ssr:false in app/explore/page.tsx.
+- 3D viewer (`components/three/`): **two render modes** behind a toggle in `FetusViewer.tsx`
+  (state `viewMode: "3d" | "photo"`, default `3d`).
+  - **3D** = real WebGL: `FetusScene.tsx` (Canvas + OrbitControls + ContactShadows + 3-point
+    light rig + translucent `AmnioticSac`) wrapping procedural `FetusModel` (`spin` prop gates
+    self-rotation so OrbitControls autoRotate can own it). NO external GLB/HDR — all procedural,
+    offline-safe.
+  - **photo** = the 4 anchor PNGs (week6/10/20/32) with hotspots/ripples/Ken-Burns zoom.
+    Loading spinner + ripples + hotspots are guarded to photo-only.
+  - Lazy-loaded via next/dynamic ssr:false in app/explore + app/imagine.
+- **Pregnancy Plan**: `lib/plan.ts` (pure, 8 week-banded `PlanPhase`s, `currentPhase(week)`) +
+  `app/plan/page.tsx` (client; highlights the live phase). Linked from primary nav + Guides hub.
+- **30 research pages**: standalone `app/<slug>/page.tsx`, all use the same SECTIONS template
+  (meditation, mindfulness, breathing-science, stress-science, gratitude-positivity, sleep-science,
+  music-and-baby, talking-to-baby, reading-to-baby, singing-lullabies, prenatal-bonding,
+  partner-support, omega-dha, folate-science, iron-science, vitamin-d, probiotics, blood-sugar,
+  exercise-science, hydration-science, sunlight-circadian, nature-wellbeing, air-quality,
+  caffeine-science, heat-safety, laughter-joy, epigenetics, skin-to-skin, immunity-microbiome,
+  fetal-movement-science). Grouped under 5 "Science & wellbeing" categories in `app/guides/page.tsx`.
 - localStorage via lib/storage.ts (namespaced bjai:), all client pages hydrate in useEffect to avoid
   static-export hydration mismatch.
 - Tests: `lib/pregnancy.test.mjs` re-implements the pure math in JS (node --test), since no TS loader.

@@ -3,6 +3,7 @@ export type NavLink = { href: string; label: string; icon: string };
 /** Primary navigation, used by Header (desktop) and MobileNav. */
 export const NAV_LINKS: NavLink[] = [
   { href: "/", label: "Today", icon: "✶" },
+  { href: "/plan", label: "Plan", icon: "🗺" },
   { href: "/timeline", label: "Timeline", icon: "↔" },
   { href: "/explore", label: "3D Baby", icon: "◉" },
   { href: "/imagine", label: "Imagine", icon: "💭" },

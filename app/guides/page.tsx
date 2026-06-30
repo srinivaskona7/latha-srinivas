@@ -73,6 +73,66 @@ const CATEGORIES: Category[] = [
       { href: "/travel", icon: "✈️", title: "Travel safely", blurb: "Car, train and air travel tips for each trimester." },
     ],
   },
+  {
+    eyebrow: "Science & wellbeing",
+    title: "Mind & calm",
+    guides: [
+      { href: "/meditation", icon: "🧎", title: "Meditation in pregnancy", blurb: "How meditation lowers stress hormones and benefits mother and baby." },
+      { href: "/mindfulness", icon: "🌿", title: "Mindfulness", blurb: "Present-moment awareness to ease anxiety and fear of birth." },
+      { href: "/breathing-science", icon: "💨", title: "The science of breathing", blurb: "How slow breathing calms the nervous system and helps in labour." },
+      { href: "/stress-science", icon: "🌬️", title: "Stress & your baby", blurb: "What the science really says — reassuring, not alarming." },
+      { href: "/gratitude-positivity", icon: "🙏", title: "Gratitude & positivity", blurb: "Positive emotion, optimism and gentle journaling." },
+      { href: "/sleep-science", icon: "🌙", title: "The science of sleep", blurb: "Sleep, circadian rhythm and why side-sleeping matters." },
+    ],
+  },
+  {
+    eyebrow: "Science & wellbeing",
+    title: "Sound & bonding",
+    guides: [
+      { href: "/music-and-baby", icon: "🎵", title: "Music & your baby", blurb: "Fetal hearing, soothing melodies and the Mozart myth." },
+      { href: "/talking-to-baby", icon: "🗣️", title: "Talking to your baby", blurb: "Language in the womb and your voice they will know." },
+      { href: "/reading-to-baby", icon: "📖", title: "Reading to your baby", blurb: "Stories and rhymes your baby can recognise after birth." },
+      { href: "/singing-lullabies", icon: "🎶", title: "Singing & lullabies", blurb: "Why singing soothes you both — India's lullaby tradition." },
+      { href: "/prenatal-bonding", icon: "💗", title: "Prenatal bonding", blurb: "The science of attachment before birth." },
+      { href: "/partner-support", icon: "🤝", title: "Partner support", blurb: "How support buffers stress and improves outcomes." },
+    ],
+  },
+  {
+    eyebrow: "Science & wellbeing",
+    title: "Nutrition science",
+    guides: [
+      { href: "/omega-dha", icon: "🐟", title: "Omega-3 & DHA", blurb: "Fats that build your baby's brain and eyes." },
+      { href: "/folate-science", icon: "🥬", title: "Folate & neural tube", blurb: "Why folic acid early prevents serious defects." },
+      { href: "/iron-science", icon: "🩸", title: "Iron & the brain", blurb: "Anaemia is common in India — and very treatable." },
+      { href: "/vitamin-d", icon: "☀️", title: "Vitamin D & sunlight", blurb: "Widespread deficiency despite the sun, and how to fix it." },
+      { href: "/probiotics", icon: "🥛", title: "Probiotics & curd", blurb: "Gut health and fermented foods — proven and not." },
+      { href: "/blood-sugar", icon: "🍯", title: "Balancing blood sugar", blurb: "The science of glycaemic balance and GDM risk." },
+    ],
+  },
+  {
+    eyebrow: "Science & wellbeing",
+    title: "Lifestyle & environment",
+    guides: [
+      { href: "/exercise-science", icon: "🚶", title: "The science of movement", blurb: "How regular activity helps mother and baby." },
+      { href: "/hydration-science", icon: "💧", title: "Hydration", blurb: "Water, amniotic fluid and India's heat." },
+      { href: "/sunlight-circadian", icon: "🌅", title: "Sunlight & body clock", blurb: "Morning light for sleep, mood and vitamin D." },
+      { href: "/nature-wellbeing", icon: "🌳", title: "Nature & wellbeing", blurb: "How green time lowers stress and blood pressure." },
+      { href: "/air-quality", icon: "🌫️", title: "Air quality", blurb: "Protecting your baby from pollution and indoor smoke." },
+      { href: "/caffeine-science", icon: "☕", title: "Caffeine & chai", blurb: "What the evidence says — balanced, not alarmist." },
+    ],
+  },
+  {
+    eyebrow: "Science & wellbeing",
+    title: "Body & beyond",
+    guides: [
+      { href: "/heat-safety", icon: "🌡️", title: "Heat & temperature", blurb: "Overheating, fever and staying cool safely." },
+      { href: "/laughter-joy", icon: "😊", title: "Laughter & joy", blurb: "How positive emotion lowers stress hormones." },
+      { href: "/epigenetics", icon: "🧬", title: "Epigenetics", blurb: "How the womb shapes lifelong health — empowering, not blaming." },
+      { href: "/skin-to-skin", icon: "🤱", title: "Skin-to-skin & oxytocin", blurb: "Kangaroo care, bonding and the first hour." },
+      { href: "/immunity-microbiome", icon: "🦠", title: "Immunity & microbiome", blurb: "How your baby's immune system is seeded." },
+      { href: "/fetal-movement-science", icon: "👣", title: "Baby's movements", blurb: "What kick patterns mean and when they matter." },
+    ],
+  },
 ];
 
 export default function GuidesPage() {
@@ -92,6 +152,25 @@ export default function GuidesPage() {
             labour, breastfeeding and newborn care.
           </p>
         </header>
+      </SectionReveal>
+
+      <SectionReveal delay={0.05}>
+        <Link
+          href="/plan"
+          className="glass mb-10 flex items-center gap-4 rounded-4xl border border-terracotta/25 bg-peach/10 p-5 shadow-glass transition-transform hover:-translate-y-1"
+        >
+          <span aria-hidden className="text-3xl">🗺</span>
+          <span className="flex-1">
+            <span className="block font-display text-lg font-semibold text-plum">
+              Your week-by-week pregnancy plan
+            </span>
+            <span className="mt-0.5 block text-sm leading-relaxed text-muted">
+              Care, tests, nutrition, movement and bonding — all tied into one timeline that
+              highlights exactly what to do now.
+            </span>
+          </span>
+          <span className="text-sm font-medium text-terracotta">Open plan &rarr;</span>
+        </Link>
       </SectionReveal>
 
       <div className="space-y-10">

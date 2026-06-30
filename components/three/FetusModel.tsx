@@ -97,18 +97,20 @@ function Limb({
 }
 
 export function FetusModel({
-  morph, selected, onSelect,
+  morph, selected, onSelect, spin = true,
 }: {
   morph: Morphology;
   selected: SystemId | null;
   onSelect: (id: SystemId) => void;
+  /** Gentle self-rotation. Disable when OrbitControls auto-rotates instead. */
+  spin?: boolean;
 }) {
   const group = useRef<THREE.Group>(null);
   const reduce = useReducedMotion();
 
   useFrame((state, delta) => {
     if (!group.current) return;
-    if (!reduce) group.current.rotation.y += delta * 0.08;
+    if (!reduce && spin) group.current.rotation.y += delta * 0.08;
     const t = state.clock.elapsedTime;
     group.current.position.y = reduce ? 0 : Math.sin(t * 0.35) * 0.018;
   });
