@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, ContactShadows } from "@react-three/drei";
+import * as THREE from "three";
 import { FetusModel, type SystemId } from "./FetusModel";
 import type { Morphology } from "@/lib/morphology";
 
@@ -54,27 +55,34 @@ export function FetusScene({
       shadows
       dpr={[1, 2]}
       camera={{ position: [0, 0.25, 3.2], fov: 42, near: 0.1, far: 50 }}
-      gl={{ antialias: true, alpha: true }}
+      gl={{
+        antialias: true,
+        alpha: true,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: 1.05,
+      }}
       style={{ background: "transparent" }}
     >
       {/* Warm womb ambience */}
       <color attach="background" args={["#1a0604"]} />
-      <fog attach="fog" args={["#1a0604", 4.5, 9]} />
+      <fog attach="fog" args={["#1a0604", 5.5, 11]} />
 
-      {/* Three-point rig: warm key, cool fill, soft rim */}
-      <ambientLight intensity={0.45} color="#FFE3D0" />
+      {/* Soft, natural rig: warm key + hemisphere fill + cool side + glowing backlight */}
+      <ambientLight intensity={0.5} color="#FFE3D0" />
+      <hemisphereLight color="#FFE0CC" groundColor="#2A0A06" intensity={0.55} />
       <directionalLight
         position={[2.4, 3.2, 2.6]}
-        intensity={2.1}
+        intensity={1.7}
         color="#FFD9BC"
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-bias={-0.0004}
       />
-      <directionalLight position={[-2.8, 0.6, -1.5]} intensity={0.7} color="#FF8A6B" />
-      <pointLight position={[0, -1.8, 2.0]} intensity={0.6} color="#FFB48C" />
-      {/* Rim from behind to separate the baby from the dark womb */}
-      <spotLight position={[0, 2.2, -3]} angle={0.9} penumbra={1} intensity={1.4} color="#FFCBA8" />
+      <directionalLight position={[-2.8, 0.6, -1.5]} intensity={0.6} color="#FF8A6B" />
+      <pointLight position={[0, -1.6, 2.0]} intensity={0.5} color="#FFB48C" />
+      {/* Backlight behind the baby — rims the translucent skin so it glows like real tissue */}
+      <spotLight position={[0, 1.6, -3.2]} angle={1.0} penumbra={1} intensity={1.8} color="#FFCBA8" />
+      <pointLight position={[0, 0, -2.4]} intensity={0.7} color="#FF7A55" />
 
       <Suspense fallback={null}>
         <AmnioticSac scale={morph.displayScale} />

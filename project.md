@@ -76,6 +76,7 @@ latha-baby/
 | `content.ts` | Mappings into `data/*.json` (`getWeek`, scan schedule, etc.). |
 | `morphology.ts` | **Pure** day→appearance model for the viewer: `getMorphology(day)`, `growthParams`, `heartRateBpm`, `sizeComparison`, `movementProfile`, `wombInsight`, `appearanceProfile`, system→organ maps. |
 | `plan.ts` | `PLAN` (8 week-banded `PlanPhase`s) + `currentPhase(week)` for the `/plan` hub. |
+| `bodyParts.ts` | `bodyPartsForWeek(week)` — per-part (brain, eyes, ears, face, heart, lungs, skeleton, arms, legs, digestive, skin) week-specific development line + status; drives the "Your baby's body right now" panel. |
 | `types.ts` | Shared types (`SystemKey`, week records, etc.). |
 | `storage.ts` | `localStorage` wrapper, namespaced `bjai:` (kick counter, journal, etc.). |
 | `*.test.mjs` | Re-implement the pure math in plain JS for `node --test` (no TS loader in tests). |
@@ -132,7 +133,7 @@ under the base path `/latha-srinivas` on GitHub Pages (empty locally).
 - **Science & wellbeing › Lifestyle & environment:** `/exercise-science` `/hydration-science` `/sunlight-circadian` `/nature-wellbeing` `/air-quality` `/caffeine-science`
 - **Science & wellbeing › Body & beyond:** `/heat-safety` `/laughter-joy` `/epigenetics` `/skin-to-skin` `/immunity-microbiome` `/fetal-movement-science`
 
-Other secondary links: `/scans` `/labs` `/medications` `/warning-signs` `/partner`.
+Other secondary links: `/scans` `/labs` `/medications` `/tablets` `/warning-signs` `/partner`.
 
 **Content-page pattern** (all 30 science pages + most guides): a typed `SECTIONS: Section[]`
 (`eyebrow/title/body/tips`) rendered through `SectionReveal` + `GlassCard` + `SectionTitle`,
@@ -156,8 +157,24 @@ with a `Badge` and a closing disclaimer. To add a guide: copy the pattern, add t
 
 ## 6. The baby viewer (`components/three/`)
 
-`FetusViewer.tsx` (lazy-loaded `ssr:false` in `/explore` and `/imagine`) has **two render modes**
-behind a top-right toggle — state `viewMode: "3d" | "photo"`, **default `3d`**.
+`FetusViewer.tsx` (lazy-loaded `ssr:false` in `/explore` and `/imagine`) renders an **interactive
+WebGL 3D model only** (`FetusScene.tsx`). The earlier photo/image mode was removed — both views
+were driven by the same week data, so the model is the single source. Drag to rotate, pinch/scroll
+to zoom, tap any organ to spotlight it; a Spin toggle controls auto-rotate.
+
+`FetusScene.tsx`: `Canvas` + `OrbitControls` + `ContactShadows` + a soft light rig (warm key,
+hemisphere fill, **backlight that rims the translucent skin**) with filmic tone mapping, wrapping
+the procedural **`FetusModel`**. Skin uses a subsurface-scattering approximation (transmission +
+warm `attenuationColor`) for natural tissue rather than plastic. Geometry/features/proportions are
+driven by `getMorphology(day)`, grounded in standard embryology (head≈½ length at wk9-12 → ¼ at
+term, digit separation ~wk10-11, tail gone ~wk8, fat from ~wk28).
+
+Below the viewer, a full-width **"Your baby's body right now"** panel shows the current calendar
+date + gestational day and a card per body part (`lib/bodyParts.ts`) with a week-specific
+development line and a soft status chip (Forming → Ready); tapping an organ card spotlights that
+system in the viewer. The frame carries a drifting **mote field** (`MOTES`) for womb depth.
+
+> Note: the `public/fetus/weekN.png` renders are now **unused** (kept on disk only).
 
 ### 3D mode — `FetusScene.tsx`
 Real WebGL: `Canvas` + `OrbitControls` (drag-rotate, pinch/scroll-zoom, auto-rotate gated by the

@@ -1,7 +1,6 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getMorphology,
   heartRateBpm,
@@ -12,8 +11,9 @@ import {
   wombInsight,
   type SystemId,
 } from "@/lib/morphology";
-import { getPregnancyState, istTodayISO, weekDayLabel } from "@/lib/pregnancy";
+import { getPregnancyState, istTodayISO, weekDayLabel, formatLongDate } from "@/lib/pregnancy";
 import { formatLength, formatWeight } from "@/lib/derive";
+import { bodyPartsForWeek, STATUS_LABEL, type PartStatus } from "@/lib/bodyParts";
 import { FetusScene } from "./FetusScene";
 
 const LABELS: Record<SystemId, string> = {
@@ -40,95 +40,32 @@ const BLURBS: Record<SystemId, string> = {
 
 const REFERENCE_ISO = "2026-06-26";
 
-// Base path for GitHub Pages subdirectory deployment (e.g. /latha-srinivas)
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+/** Deterministic floating-mote field (no random at render) for womb atmosphere. */
+const MOTES: Array<{ x: number; y: number; s: number; d: number; delay: number }> = [
+  { x: 12, y: 20, s: 4, d: 11, delay: 0 },
+  { x: 78, y: 14, s: 3, d: 14, delay: 1.2 },
+  { x: 30, y: 70, s: 5, d: 12, delay: 0.6 },
+  { x: 64, y: 60, s: 3, d: 15, delay: 2.1 },
+  { x: 22, y: 44, s: 2, d: 13, delay: 1.6 },
+  { x: 88, y: 40, s: 4, d: 10, delay: 0.3 },
+  { x: 50, y: 82, s: 3, d: 16, delay: 2.6 },
+  { x: 70, y: 78, s: 2, d: 12, delay: 1.0 },
+  { x: 40, y: 28, s: 3, d: 14, delay: 0.9 },
+  { x: 16, y: 60, s: 2, d: 17, delay: 2.3 },
+  { x: 84, y: 66, s: 3, d: 11, delay: 1.8 },
+  { x: 58, y: 18, s: 2, d: 15, delay: 0.4 },
+  { x: 34, y: 88, s: 4, d: 13, delay: 1.4 },
+  { x: 92, y: 24, s: 2, d: 16, delay: 2.0 },
+];
 
-/** Returns the public image path for the given gestational week.
- *  Image files are mapped by their *actual depicted maturity*, which does not
- *  always match the filename — ordered here so the shown baby matures
- *  monotonically with gestational age (lean & big-headed early, plump at term).
- *  week36.png depicts twins, so it is intentionally not used for this singleton. */
-function babyImageForWeek(week: number): string {
-  if (week <= 9)  return `${BASE}/fetus/week6.png`;    // embryo — large head, tail, dark eye
-  if (week <= 13) return `${BASE}/fetus/week10.png`;   // early fetus — dominant head, lean translucent body
-  if (week <= 17) return `${BASE}/fetus/week15.png`;   // lean fetus, big head, see-through skin, fine limbs
-  if (week <= 21) return `${BASE}/fetus/week12.png`;   // formed but lean, ribs visible through thin skin
-  if (week <= 26) return `${BASE}/fetus/week24.png`;   // lean & slightly wrinkled, head-down, little fat
-  if (week <= 31) return `${BASE}/fetus/week28.png`;   // filling out, vernix streaks, smoother skin
-  if (week <= 35) return `${BASE}/fetus/week32.png`;   // chubby cheeks, hair, rounding out
-  if (week <= 38) return `${BASE}/fetus/week40.png`;   // plump, near term, smooth skin
-  return `${BASE}/fetus/week20.png`;                   // fullest-term look — rounded, term baby
-}
-
-/** Continuous, day-driven zoom so the baby visibly grows between stage swaps.
- *  Driven by the real length curve (displayScale ≈ 0.42→1.2), eased into a
- *  subtle 1.00→1.14 frame zoom — fast early, gentle later, matching biology. */
-function babyZoom(displayScale: number): number {
-  const t = Math.min(1, Math.max(0, (displayScale - 0.42) / 0.78));
-  return 1 + t * 0.14;
-}
-
-/** Normalised hotspot positions (% of frame) for each anchor image, so taps on
- *  the actual photo land on the right organ. Only locatable systems are mapped. */
-type Point = { x: number; y: number };
-// HOTSPOTS keys must match the imageSrc values returned by babyImageForWeek()
-// which include the BASE prefix — so we build them at runtime.
-const HOTSPOTS_RAW: Record<string, Partial<Record<SystemId, Point>>> = {
-  "week6": {
-    brain: { x: 40, y: 26 }, heart: { x: 46, y: 50 }, lungs: { x: 43, y: 47 },
-    digestive: { x: 50, y: 60 }, skeleton: { x: 48, y: 64 }, muscles: { x: 53, y: 70 },
-    umbilicalCord: { x: 70, y: 55 }, placenta: { x: 85, y: 36 },
-  },
-  "week10": {
-    brain: { x: 42, y: 25 }, heart: { x: 40, y: 52 }, lungs: { x: 43, y: 49 },
-    digestive: { x: 40, y: 63 }, skeleton: { x: 46, y: 72 }, muscles: { x: 49, y: 74 },
-    umbilicalCord: { x: 62, y: 60 }, placenta: { x: 84, y: 30 },
-  },
-  "week12": {
-    brain: { x: 44, y: 25 }, heart: { x: 41, y: 52 }, lungs: { x: 43, y: 49 },
-    digestive: { x: 40, y: 63 }, skeleton: { x: 46, y: 72 }, muscles: { x: 49, y: 74 },
-    umbilicalCord: { x: 62, y: 60 }, placenta: { x: 84, y: 30 },
-  },
-  "week15": {
-    brain: { x: 43, y: 26 }, heart: { x: 42, y: 51 }, lungs: { x: 44, y: 48 },
-    digestive: { x: 41, y: 62 }, skeleton: { x: 47, y: 71 }, muscles: { x: 50, y: 73 },
-    umbilicalCord: { x: 64, y: 58 }, placenta: { x: 82, y: 32 },
-  },
-  "week20": {
-    brain: { x: 45, y: 27 }, heart: { x: 44, y: 50 }, lungs: { x: 46, y: 47 },
-    digestive: { x: 47, y: 58 }, skeleton: { x: 50, y: 72 }, muscles: { x: 53, y: 66 },
-    umbilicalCord: { x: 68, y: 44 }, placenta: { x: 22, y: 56 },
-  },
-  "week24": {
-    brain: { x: 46, y: 28 }, heart: { x: 45, y: 49 }, lungs: { x: 47, y: 46 },
-    digestive: { x: 48, y: 57 }, skeleton: { x: 51, y: 71 }, muscles: { x: 54, y: 65 },
-    umbilicalCord: { x: 67, y: 45 }, placenta: { x: 24, y: 55 },
-  },
-  "week28": {
-    brain: { x: 48, y: 29 }, heart: { x: 47, y: 48 }, lungs: { x: 49, y: 45 },
-    digestive: { x: 50, y: 56 }, skeleton: { x: 53, y: 70 }, muscles: { x: 56, y: 64 },
-    umbilicalCord: { x: 65, y: 46 }, placenta: { x: 26, y: 54 },
-  },
-  "week32": {
-    brain: { x: 62, y: 27 }, heart: { x: 50, y: 48 }, lungs: { x: 52, y: 45 },
-    digestive: { x: 48, y: 58 }, skeleton: { x: 40, y: 72 }, muscles: { x: 44, y: 64 },
-    umbilicalCord: { x: 32, y: 30 }, placenta: { x: 80, y: 30 },
-  },
-  "week36": {
-    brain: { x: 60, y: 28 }, heart: { x: 52, y: 47 }, lungs: { x: 53, y: 44 },
-    digestive: { x: 49, y: 59 }, skeleton: { x: 42, y: 71 }, muscles: { x: 45, y: 63 },
-    umbilicalCord: { x: 34, y: 32 }, placenta: { x: 78, y: 32 },
-  },
-  "week40": {
-    brain: { x: 58, y: 29 }, heart: { x: 54, y: 46 }, lungs: { x: 54, y: 43 },
-    digestive: { x: 51, y: 60 }, skeleton: { x: 44, y: 70 }, muscles: { x: 46, y: 62 },
-    umbilicalCord: { x: 36, y: 34 }, placenta: { x: 76, y: 34 },
-  },
+/** Soft, professional tone per development status (bg + text). */
+const STATUS_TONE: Record<PartStatus, { bg: string; fg: string }> = {
+  forming:    { bg: "rgb(var(--peach) / 0.18)",      fg: "rgb(var(--terracotta))" },
+  developing: { bg: "rgb(var(--terracotta) / 0.14)", fg: "rgb(var(--terracotta))" },
+  refining:   { bg: "rgb(var(--sage) / 0.18)",       fg: "rgb(var(--sage))" },
+  maturing:   { bg: "rgb(var(--plum) / 0.12)",       fg: "rgb(var(--plum))" },
+  ready:      { bg: "rgb(var(--sage) / 0.22)",       fg: "rgb(var(--sage))" },
 };
-function getHotspots(imageSrc: string): Partial<Record<SystemId, Point>> {
-  const key = imageSrc.replace(/.*\/(week\d+)\.png$/, "$1");
-  return HOTSPOTS_RAW[key] ?? {};
-}
 
 /** Stage description shown next to the image */
 function stageDescription(week: number): { title: string; desc: string } {
@@ -162,13 +99,9 @@ export function FetusViewer() {
   const [day, setDay] = useState<number>(74);
   const [selected, setSelected] = useState<SystemId | null>("heart");
   const [followToday, setFollowToday] = useState(true);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [prevImage, setPrevImage] = useState<string>("");
 
   // Viewing options
-  const [viewMode, setViewMode] = useState<"3d" | "photo">("3d");
   const [motionOn, setMotionOn] = useState(true);
-  const [hotspotsOn, setHotspotsOn] = useState(true);
   const [soundOn, setSoundOn] = useState(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
@@ -210,8 +143,6 @@ export function FetusViewer() {
     setDayClamped(ratio * 280);
   };
 
-  const imageSrc = babyImageForWeek(morph.week);
-  const zoom = babyZoom(morph.displayScale);
   const { title: stageTitle, desc: stageDesc } = stageDescription(morph.week);
   const active = selected;
 
@@ -220,14 +151,8 @@ export function FetusViewer() {
   const size = sizeComparison(morph.week);
   const move = movementProfile(morph.week);
   const womb = wombInsight(morph.week);
-
-  // Animate image transition when week-stage changes
-  useEffect(() => {
-    if (imageSrc !== prevImage) {
-      setImageLoaded(false);
-      setPrevImage(imageSrc);
-    }
-  }, [imageSrc, prevImage]);
+  const parts = useMemo(() => bodyPartsForWeek(morph.week), [morph.week]);
+  const todayLongDate = useMemo(() => formatLongDate(todayISO), [todayISO]);
 
   // Drive the heartbeat audio at the week-accurate BPM while sound is enabled.
   useEffect(() => {
@@ -313,126 +238,22 @@ export function FetusViewer() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-      {/* === PHOTOREALISTIC BABY VIEW === */}
-      {/* The renders already contain the full womb (sac, placenta, vessels, glow),
-          so we present them edge-to-edge in a clean frame instead of layering a
-          second, mismatched gradient womb on top. */}
+      {/* === INTERACTIVE 3D BABY VIEW === */}
+      {/* Procedural WebGL model driven by the day-accurate morphology. Drag to
+          rotate, pinch/scroll to zoom, tap any system to spotlight it. */}
       <div className="space-y-3">
       <div
         className="relative aspect-square w-full overflow-hidden rounded-4xl"
         style={{ background: "#160604" }}
       >
-        {viewMode === "3d" ? (
-          <div className="absolute inset-0">
-            <FetusScene
-              morph={morph}
-              selected={selected}
-              onSelect={setSelected}
-              autoRotate={motionOn}
-            />
-          </div>
-        ) : (<>
-        {/* Ken-Burns layer — slow cinematic drift while the film plays */}
-        <div
-          className="absolute inset-0"
-          style={playing ? { animation: "kenburns 12s ease-in-out infinite" } : undefined}
-        >
-          {/* Zoom layer — continuous day-driven growth */}
-          <div
-            className="absolute inset-0"
-            style={{
-              transform: `scale(${zoom})`,
-              transformOrigin: "50% 48%",
-              transition: "transform 1.2s cubic-bezier(0.22,0.61,0.36,1)",
-            }}
-          >
-          {/* Idle-motion: two nested layers at different periods so the baby
-              drifts organically (buoyant bob + faint breathing on the outer,
-              gentle sway/rotate on the inner) rather than sliding as a rigid
-              block. Amplitudes come from the week's movement profile. */}
-          <div
-            className="absolute inset-0"
-            style={
-              motionOn
-                ? ({
-                    animation: `baby-bob ${move.periodSec}s ease-in-out infinite`,
-                    ["--mv-amp" as string]: `${move.amplitudePx}px`,
-                    ["--mv-amp-neg" as string]: `${-move.amplitudePx}px`,
-                  } as CSSProperties)
-                : undefined
-            }
-          >
-          <div
-            className="absolute inset-0"
-            style={
-              motionOn
-                ? ({
-                    animation: `baby-sway ${(move.periodSec * 1.7).toFixed(2)}s ease-in-out infinite`,
-                    ["--mv-ampx" as string]: `${(move.amplitudePx * 0.55).toFixed(1)}px`,
-                    ["--mv-ampx-neg" as string]: `${(-move.amplitudePx * 0.55).toFixed(1)}px`,
-                    ["--mv-rot" as string]: `${move.rotateDeg}deg`,
-                    ["--mv-rot-neg" as string]: `${-move.rotateDeg}deg`,
-                  } as CSSProperties)
-                : undefined
-            }
-          >
-            <Image
-              src={imageSrc}
-              alt={`Baby at ${morph.week} weeks`}
-              fill
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-cover"
-              style={{
-                opacity: imageLoaded ? 1 : 0,
-                transition: "opacity 0.7s ease",
-              }}
-              onLoad={() => setImageLoaded(true)}
-              priority
-            />
-
-            {/* Organ hotspots — pinned to the baby so they track zoom + motion */}
-            {hotspotsOn &&
-              VIEWER_SYSTEMS.map((s) => {
-                const pos = getHotspots(imageSrc)?.[s];
-                if (!pos || !morph.present[s]) return null;
-                const isSel = selected === s;
-                return (
-                  <button
-                    key={s}
-                    onClick={() => setSelected(s)}
-                    aria-label={`Highlight ${LABELS[s]}`}
-                    className="absolute z-20"
-                    style={{ left: `${pos.x}%`, top: `${pos.y}%`, transform: "translate(-50%,-50%)" }}
-                  >
-                    {isSel && (
-                      <span
-                        className="absolute left-1/2 top-1/2 block rounded-full"
-                        style={{
-                          width: 16, height: 16,
-                          border: "2px solid rgba(255,180,90,0.9)",
-                          transform: "translate(-50%,-50%)",
-                          animation: "hotspot-ping 1.5s ease-out infinite",
-                        }}
-                      />
-                    )}
-                    <span
-                      className="block rounded-full transition-all"
-                      style={{
-                        width: isSel ? 15 : 12,
-                        height: isSel ? 15 : 12,
-                        background: isSel ? "rgba(255,170,80,0.95)" : "rgba(255,220,180,0.55)",
-                        border: "1.5px solid rgba(255,255,255,0.85)",
-                        boxShadow: "0 0 8px rgba(0,0,0,0.5)",
-                      }}
-                    />
-                  </button>
-                );
-              })}
-          </div>
+        <div className="absolute inset-0">
+          <FetusScene
+            morph={morph}
+            selected={selected}
+            onSelect={setSelected}
+            autoRotate={motionOn}
+          />
         </div>
-        </div>
-        </div>
-        </>)}
 
         {/* Gentle amniotic shimmer — adds life without competing with the art */}
         <div
@@ -450,8 +271,26 @@ export function FetusViewer() {
           style={{ boxShadow: "inset 0 0 90px 20px rgba(10,2,1,0.55)" }}
         />
 
+        {/* Floating amniotic motes — soft drifting particles add depth & life */}
+        <div className="pointer-events-none absolute inset-0 z-[12] overflow-hidden">
+          {MOTES.map((m, i) => (
+            <span
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                left: `${m.x}%`,
+                top: `${m.y}%`,
+                width: m.s,
+                height: m.s,
+                background: "rgba(255,214,170,0.55)",
+                boxShadow: "0 0 6px rgba(255,190,130,0.45)",
+                animation: motionOn ? `mote-drift ${m.d}s ease-in-out ${m.delay}s infinite` : undefined,
+              }}
+            />
+          ))}
+        </div>
+
         {/* Kick ripples — transient rings, like movement seen on a live scan */}
-        {viewMode === "photo" && (
         <div className="pointer-events-none absolute inset-0 z-[15]">
           {ripples.map((r) => (
             <span
@@ -469,22 +308,6 @@ export function FetusViewer() {
             />
           ))}
         </div>
-        )}
-
-        {/* Loading placeholder */}
-        {viewMode === "photo" && !imageLoaded && (
-          <div className="absolute inset-0 z-30 flex items-center justify-center">
-            <div
-              style={{
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, rgba(255,140,60,0.3) 0%, transparent 70%)",
-                animation: "womb-pulse 1.5s ease-in-out infinite",
-              }}
-            />
-          </div>
-        )}
 
         {/* Stage label overlay — top-left */}
         <div className="pointer-events-none absolute left-4 top-4 z-30 space-y-1.5">
@@ -496,27 +319,20 @@ export function FetusViewer() {
             style={{ background: "rgba(0,0,0,0.35)", color: "#FFB888" }}>
             {formatLength(morph.lengthMm)} · {formatWeight(morph.weightG)}
           </div>
+          {followToday && (
+            <div className="rounded-full px-3 py-1 text-[11px] backdrop-blur-sm"
+              style={{ background: "rgba(0,0,0,0.35)", color: "#FFCBA0" }}>
+              📅 {todayLongDate}
+            </div>
+          )}
         </div>
 
         {/* Viewing toggles — top-right */}
         <div className="absolute right-4 top-4 z-30 flex gap-1.5">
           <button
-            onClick={() => setViewMode((m) => (m === "3d" ? "photo" : "3d"))}
-            aria-label={viewMode === "3d" ? "Switch to photo view" : "Switch to 3D model"}
-            title={viewMode === "3d" ? "Switch to photo view" : "Switch to interactive 3D model"}
-            className="rounded-full px-2.5 py-1 text-[11px] font-semibold backdrop-blur-sm transition-colors"
-            style={{
-              background: "rgba(255,150,60,0.85)",
-              color: "#1a0503",
-              border: "1px solid rgba(255,200,150,0.5)",
-            }}
-          >
-            {viewMode === "3d" ? "◉ 3D" : "🖼 Photo"}
-          </button>
-          <button
             onClick={() => setMotionOn((v) => !v)}
             aria-pressed={motionOn}
-            title={viewMode === "3d" ? "Toggle auto-rotate" : "Toggle gentle motion"}
+            title="Toggle auto-rotate"
             className="rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm transition-colors"
             style={{
               background: motionOn ? "rgba(255,150,60,0.85)" : "rgba(0,0,0,0.45)",
@@ -524,23 +340,14 @@ export function FetusViewer() {
               border: "1px solid rgba(255,160,60,0.3)",
             }}
           >
-            {viewMode === "3d" ? "↻ Spin" : "✷ Motion"}
+            ↻ Spin
           </button>
-          {viewMode === "photo" && (
-          <button
-            onClick={() => setHotspotsOn((v) => !v)}
-            aria-pressed={hotspotsOn}
-            title="Toggle organ points on the baby"
-            className="rounded-full px-2.5 py-1 text-[11px] font-medium backdrop-blur-sm transition-colors"
-            style={{
-              background: hotspotsOn ? "rgba(255,150,60,0.85)" : "rgba(0,0,0,0.45)",
-              color: hotspotsOn ? "#1a0503" : "#FFB888",
-              border: "1px solid rgba(255,160,60,0.3)",
-            }}
-          >
-            ◉ Points
-          </button>
-          )}
+        </div>
+
+        {/* Drag-to-rotate hint */}
+        <div className="pointer-events-none absolute bottom-4 left-4 z-30 rounded-full px-3 py-1 text-[11px] backdrop-blur-sm"
+          style={{ background: "rgba(0,0,0,0.4)", color: "#FFCBA0", border: "1px solid rgba(255,160,60,0.25)" }}>
+          ✋ Drag to rotate · pinch to zoom
         </div>
 
         {/* Stage name overlay — bottom */}
@@ -767,26 +574,17 @@ export function FetusViewer() {
             ))}
           </div>
           <p className="mt-3 text-xs text-muted">
-            The baby in the view moves the way it does around week {morph.week}. Turn ✷ Motion on to watch.
+            The 3D baby moves the way it does around week {morph.week}. Drag to rotate it, or use ↻ Spin for a gentle auto-turn.
           </p>
         </div>
 
-        {/* System selector + organ hotspots */}
+        {/* System selector */}
         <div className="glass rounded-4xl p-5">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-plum">Body systems</h3>
-            <button
-              onClick={() => setHotspotsOn((v) => !v)}
-              aria-pressed={hotspotsOn}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
-                hotspotsOn ? "bg-terracotta text-white" : "bg-linen text-muted hover:text-ink"
-              }`}
-            >
-              {hotspotsOn ? "Points: on" : "Points: off"}
-            </button>
           </div>
           <p className="mt-1 text-sm text-muted">
-            Tap a system — or a point on the baby — to learn about it. Greyed-out systems haven&apos;t formed yet at day {morph.day}.
+            Tap a system to spotlight it on the baby. Greyed-out systems haven&apos;t formed yet at day {morph.day}.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {VIEWER_SYSTEMS.map((s) => {
@@ -868,6 +666,74 @@ export function FetusViewer() {
         </p>
       </div>
 
+      {/* === YOUR BABY'S BODY TODAY (full width, current-day driven) === */}
+      <div className="glass rounded-4xl p-5 sm:p-6 lg:col-span-2">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-peach">
+              Part by part, today
+            </p>
+            <h3 className="mt-1 font-display text-xl font-semibold text-plum sm:text-2xl">
+              Your baby&apos;s body right now
+            </h3>
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <span className="rounded-full bg-terracotta/12 px-3 py-1 text-xs font-semibold text-terracotta">
+              {todayLongDate}
+            </span>
+            <span className="text-xs text-muted">
+              {weekDayLabel(morph.day)} · Week {morph.week} · Day {morph.day}
+            </span>
+          </div>
+        </div>
+        <p className="mt-1 text-sm text-muted">
+          Exactly what each part of your baby is doing at this stage. Tap an organ to spotlight it in the view above.
+        </p>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {parts.map((p) => {
+            const tone = STATUS_TONE[p.status];
+            const selectable = Boolean(p.system && morph.present[p.system]);
+            const isSel = selectable && selected === p.system;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                disabled={!selectable}
+                onClick={() => selectable && p.system && setSelected(p.system)}
+                className={`flex flex-col rounded-3xl p-4 text-left transition-all ${
+                  isSel ? "bg-peach/15 ring-2 ring-terracotta/50" : "bg-linen/60"
+                } ${selectable ? "cursor-pointer hover:-translate-y-0.5" : "cursor-default"}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg" aria-hidden>{p.icon}</span>
+                    <span className="text-sm font-semibold text-plum">{p.label}</span>
+                  </div>
+                  <span
+                    className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    style={{ background: tone.bg, color: tone.fg }}
+                  >
+                    {STATUS_LABEL[p.status]}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-ink">{p.detail}</p>
+                {selectable && (
+                  <span className="mt-2 text-[11px] font-medium text-terracotta">
+                    {isSel ? "● Showing in view" : "Tap to spotlight →"}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted">
+          These descriptions update automatically as your pregnancy day advances. Every baby grows
+          at their own pace — this is a gentle, educational guide, not a medical assessment.
+        </p>
+      </div>
+
       {/* Animations */}
       <style>{`
         @keyframes womb-pulse {
@@ -908,8 +774,13 @@ export function FetusViewer() {
           0%   { opacity: 0; transform: translate(-50%, 8px); }
           100% { opacity: 1; transform: translate(-50%, 0); }
         }
+        @keyframes mote-drift {
+          0%   { transform: translate(0, 0); opacity: 0.25; }
+          50%  { transform: translate(6px, -14px); opacity: 0.7; }
+          100% { transform: translate(0, 0); opacity: 0.25; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          [style*="baby-bob"], [style*="baby-sway"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"], [style*="kenburns"], [style*="caption-in"] {
+          [style*="baby-bob"], [style*="baby-sway"], [style*="heartbeat"], [style*="hotspot-ping"], [style*="womb-pulse"], [style*="ripple-kick"], [style*="kenburns"], [style*="caption-in"], [style*="mote-drift"] {
             animation: none !important;
           }
         }

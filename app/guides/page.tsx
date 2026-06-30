@@ -29,6 +29,7 @@ const CATEGORIES: Category[] = [
       { href: "/concerns", icon: "🩹", title: "Common concerns", blurb: "Anaemia, GDM, thyroid and more — what to screen for in India." },
       { href: "/high-risk", icon: "🛟", title: "High-risk pregnancy", blurb: "What it means, who needs extra care, and the reassurance behind it." },
       { href: "/infections", icon: "🦟", title: "Infections & safety", blurb: "Prevent UTIs, dengue, food-borne illness and TORCH infections." },
+      { href: "/tablets", icon: "💊", title: "Tablets & supplements", blurb: "The main pregnancy tablets — folic acid, IFA, calcium and more — and what each is for." },
     ],
   },
   {

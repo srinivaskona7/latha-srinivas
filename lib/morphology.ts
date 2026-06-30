@@ -351,6 +351,15 @@ export interface GrowthParams {
  * Pure week → growth-parameter mapping. Exposed separately so the curve
  * invariants (monotonic scale, shrinking head, regressing tail) are testable
  * without the content/data layer.
+ *
+ * Proportions are grounded in standard human-embryology references (Carnegie
+ * stages; Moore & Persaud, *The Developing Human*; O'Rahilly & Müller):
+ *  - Head is ~½ of crown-rump length at ~wk9-12, ~⅓ by ~wk20, ~¼ at term.
+ *  - Upper-limb buds ~wk4-5 → hand plates ~wk6-7 → separated fingers ~wk10-11;
+ *    lower limbs lag ~1wk. Limbs are well-proportioned by ~wk16.
+ *  - The embryonic tail regresses and is gone by ~wk8 (end of embryonic period).
+ *  - Subcutaneous fat is laid down mainly from ~wk28, smoothing the skin in T3.
+ *  - Skin is near-translucent early and becomes opaque as fat/vernix build up.
  */
 export function growthParams(week: number, lengthMm: number): GrowthParams {
   const w = clamp(week, 1, 40);

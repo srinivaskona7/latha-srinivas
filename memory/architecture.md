@@ -26,17 +26,14 @@ client-side every IST day from a fixed LMP. Deploys as static files (`out/`).
   to fonts.googleapis.com. CSS vars --font-fraunces/--font-inter defined in globals.css with fallbacks.
 - `next.config.mjs`: `output:'export'`, `images.unoptimized`, `trailingSlash:true` → internal links use trailing slash.
 - next-pwa disabled in dev; generates public/sw.js on build (gitignored).
-- 3D viewer (`components/three/`): **two render modes** behind a toggle in `FetusViewer.tsx`
-  (state `viewMode: "3d" | "photo"`, default `3d`).
-  - **3D** = real WebGL: `FetusScene.tsx` (Canvas + OrbitControls + ContactShadows + 3-point
-    light rig + translucent `AmnioticSac`) wrapping procedural `FetusModel` (`spin` prop gates
-    self-rotation so OrbitControls autoRotate can own it). NO external GLB/HDR — all procedural,
-    offline-safe.
-  - **photo** = the anchor PNGs (`public/fetus/weekN.png`) with hotspots/ripples/Ken-Burns zoom.
-    ⚠️ **Filenames do NOT match depicted maturity** — `babyImageForWeek()` maps each week to the
-    most accurate file in *true maturity order* (week20.png looks near-term → used at 39–40 wk;
-    **week36.png is TWINS → unused**). Re-check this mapping if renders are regenerated.
-    Loading spinner + ripples + hotspots are guarded to photo-only.
+- 3D viewer (`components/three/`): **WebGL-only** (photo/image mode removed — both used the same
+  week data). `FetusViewer.tsx` renders `FetusScene.tsx` (Canvas + OrbitControls + ContactShadows
+  + soft light rig w/ backlight + filmic tone-mapping + translucent `AmnioticSac`) wrapping the
+  procedural `FetusModel` (subsurface-approx skin; `spin` prop gates self-rotation). NO external
+  GLB/HDR — all procedural, offline-safe. Lazy-loaded via next/dynamic ssr:false in explore+imagine.
+  `public/fetus/weekN.png` renders are now **unused/orphaned** (kept on disk).
+  Below the viewer: **"Your baby's body right now"** panel (`lib/bodyParts.ts`, day-driven, per-part
+  status) + drifting `MOTES` for depth.
   - Lazy-loaded via next/dynamic ssr:false in app/explore + app/imagine.
 - **Pregnancy Plan**: `lib/plan.ts` (pure, 8 week-banded `PlanPhase`s, `currentPhase(week)`) +
   `app/plan/page.tsx` (client; highlights the live phase). Linked from primary nav + Guides hub.

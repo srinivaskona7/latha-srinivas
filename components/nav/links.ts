@@ -30,4 +30,5 @@ export const MORE_LINKS: NavLink[] = [
   { href: "/partner", label: "Partner", icon: "⚭" },
   { href: "/gallery", label: "Gallery", icon: "▣" },
   { href: "/medications", label: "Medications", icon: "✚" },
+  { href: "/tablets", label: "Tablets", icon: "💊" },
 ];

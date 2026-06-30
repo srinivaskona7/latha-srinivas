@@ -46,14 +46,15 @@ function BodyBlob({
 }) {
   return (
     <mesh position={pos} scale={scale} castShadow receiveShadow>
-      <sphereGeometry args={[1, 40, 40]} />
+      <sphereGeometry args={[1, 48, 48]} />
       <meshPhysicalMaterial
         color={color} roughness={roughness} metalness={0.0}
         transparent={opacity < 1} opacity={opacity}
         emissive={emissive} emissiveIntensity={emissiveIntensity}
         transmission={transmission} thickness={thickness} ior={ior}
-        sheen={0.9} sheenRoughness={0.6} sheenColor="#FFD4C2"
-        clearcoat={0.08} clearcoatRoughness={0.3}
+        attenuationColor="#B0432F" attenuationDistance={Math.max(0.35, thickness)}
+        sheen={0.35} sheenRoughness={0.75} sheenColor="#FFC4AC"
+        clearcoat={0.03} clearcoatRoughness={0.6}
       />
     </mesh>
   );
@@ -83,14 +84,15 @@ function Limb({
 
   return (
     <mesh position={position} quaternion={quaternion} castShadow receiveShadow>
-      <capsuleGeometry args={[r, length, 12, 24]} />
+      <capsuleGeometry args={[r, length, 16, 32]} />
       <meshPhysicalMaterial
         color={color} roughness={roughness} metalness={0.0}
         transparent={opacity < 1} opacity={opacity}
         emissive={emissive} emissiveIntensity={emissiveIntensity}
         transmission={transmission} thickness={0.7} ior={1.36}
-        sheen={0.9} sheenRoughness={0.6} sheenColor="#FFD4C2"
-        clearcoat={0.08} clearcoatRoughness={0.3}
+        attenuationColor="#B0432F" attenuationDistance={0.6}
+        sheen={0.35} sheenRoughness={0.75} sheenColor="#FFC4AC"
+        clearcoat={0.03} clearcoatRoughness={0.6}
       />
     </mesh>
   );
@@ -129,7 +131,7 @@ export function FetusModel({
     : isFetus1  ? 0.28
     : isFetus2  ? 0.10
     : 0.02;
-  const skinRough = isEmbryo ? 0.38 : isFetus1 ? 0.46 : isFetus2 ? 0.52 : 0.58;
+  const skinRough = isEmbryo ? 0.5 : isFetus1 ? 0.56 : isFetus2 ? 0.62 : 0.68;
 
   const skinColor =
     selected === "muscles"  ? "#BE4030"
@@ -187,8 +189,9 @@ export function FetusModel({
     emissive: skinEmissive, emissiveIntensity: skinEmissiveI,
     transparent: skinOpacity < 1, opacity: skinOpacity,
     transmission: baseTrans, thickness: 0.7, ior: 1.36,
-    sheen: 0.9, sheenRoughness: 0.6, sheenColor: "#FFD4C2" as const,
-    clearcoat: 0.08, clearcoatRoughness: 0.3,
+    attenuationColor: "#B0432F" as const, attenuationDistance: 0.6,
+    sheen: 0.35, sheenRoughness: 0.75, sheenColor: "#FFC4AC" as const,
+    clearcoat: 0.03, clearcoatRoughness: 0.6,
   };
 
   return (
@@ -322,7 +325,7 @@ export function FetusModel({
         {/* Brain overlay */}
         <mesh visible={selected==="brain"} position={[0,headR*0.14,-0.04]} scale={[0.9,0.94,0.86]}>
           <sphereGeometry args={[headR*0.74, 36, 36]} />
-          <meshStandardMaterial color={ACCENT.brain} emissive={ACCENT.brain} emissiveIntensity={0.8} roughness={0.35} />
+          <meshStandardMaterial color={ACCENT.brain} emissive={ACCENT.brain} emissiveIntensity={0.4} roughness={0.5} />
         </mesh>
       </group>
 
@@ -420,7 +423,7 @@ export function FetusModel({
           onClick={stop(() => onSelect("heart"))}>
           <sphereGeometry args={[0.09,28,28]} />
           <meshStandardMaterial color={ACCENT.heart} emissive={ACCENT.heart}
-            emissiveIntensity={selected==="heart"?1.1:0.35} roughness={0.35} />
+            emissiveIntensity={selected==="heart"?0.5:0.12} roughness={0.5} />
         </mesh>
       )}
 
@@ -430,7 +433,7 @@ export function FetusModel({
             <mesh key={x} position={[x,headY-headR*1.78,0.18]} scale={[1,1.4,0.88]}>
               <sphereGeometry args={[0.09,22,22]} />
               <meshStandardMaterial color={ACCENT.lungs} emissive={ACCENT.lungs}
-                emissiveIntensity={selected==="lungs"?0.9:0.18} roughness={0.45} />
+                emissiveIntensity={selected==="lungs"?0.4:0.08} roughness={0.55} />
             </mesh>
           ))}
         </group>
@@ -440,7 +443,7 @@ export function FetusModel({
         <mesh position={[0,headY-headR*2.48,0.22]} onClick={stop(() => onSelect("digestive"))}>
           <torusKnotGeometry args={[0.10,0.036,60,8]} />
           <meshStandardMaterial color={ACCENT.digestive} emissive={ACCENT.digestive}
-            emissiveIntensity={selected==="digestive"?0.85:0.22} roughness={0.4} />
+            emissiveIntensity={selected==="digestive"?0.4:0.1} roughness={0.5} />
         </mesh>
       )}
 
@@ -450,7 +453,7 @@ export function FetusModel({
             <mesh key={i} position={[0,headY-headR*(1.6+i*0.44),0.12+i*0.018]}
               rotation={[Math.PI/2.2,0,0]}>
               <torusGeometry args={[(bodyW+0.01)-i*0.016, 0.020, 12, 28]} />
-              <meshStandardMaterial color={ACCENT.skeleton} emissive={ACCENT.skeleton} emissiveIntensity={0.6} />
+              <meshStandardMaterial color={ACCENT.skeleton} emissive={ACCENT.skeleton} emissiveIntensity={0.35} roughness={0.6} />
             </mesh>
           ))}
         </group>
